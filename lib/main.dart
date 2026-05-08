@@ -8,10 +8,13 @@ import 'providers/app_providers.dart';
 import 'router/app_router.dart';
 import 'theme/app_theme.dart';
 
+const String appVersion = '1.0.0';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   await Hive.openBox('documents');
+  await Hive.openBox('theme');
 
   // Prefer edge-to-edge rendering
   SystemChrome.setSystemUIOverlayStyle(

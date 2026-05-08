@@ -1,4 +1,5 @@
 // lib/screens/home/home_screen.dart
+import 'package:docforge/features/utils/share_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -264,18 +265,25 @@ class HomeScreen extends ConsumerWidget {
                               context.push(AppRoutes.editor);
                             }
                           },
-                          onShare: () {
+                          onShare: () async {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text('Sharing ${doc.name}…'),
                                 behavior: SnackBarBehavior.floating,
                               ),
                             );
+                            if (doc.path != null) {
+                              await shareDocument(doc.path!);
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content:
+                                        Text('File not found for ${doc.name}')),
+                              );
+                            }
                           },
                           onDelete: () {
-                            ref
-                                .read(documentProvider.notifier)
-                                .removeDocument(doc.id);
+                            ref.read(documentsProvider.notifier).remove(doc.id);
                           },
                         ),
                       ),

@@ -14,11 +14,15 @@ class DocumentRepository {
         .toList();
   }
 
-  Future<void> delete(String id) async {
-    await box.delete(id);
+  Future<void> delete(String key) async {
+    await box.delete(key);
   }
 
   Future<void> update(Document doc) async {
     await box.put(doc.id, doc.toMap());
+  }
+
+  Future<void> clearAll() async {
+    await box.clear();
   }
 }

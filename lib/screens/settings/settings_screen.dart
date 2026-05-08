@@ -1,6 +1,11 @@
 // lib/screens/settings/settings_screen.dart
+import 'dart:ui';
+
+import 'package:docforge/features/utils/cache_clearer.dart';
+import 'package:docforge/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../providers/app_providers.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common_widgets.dart';
@@ -13,7 +18,7 @@ class SettingsScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final themeMode = ref.watch(themeModeProvider);
-    final documentCount = ref.watch(documentProvider).length;
+    final documentCount = ref.watch(documentsProvider).length;
 
     return Scaffold(
       appBar: AppBar(
@@ -40,9 +45,9 @@ class SettingsScreen extends ConsumerWidget {
                   subtitle: _themeModeLabel(themeMode),
                   iconColor: const Color(0xFF6366F1),
                   trailing: _ThemeSegmentedControl(
-                    current: themeMode,
+                    current: themeMode, 
                     onChange: (m) =>
-                        ref.read(themeModeProvider.notifier).state = m,
+                        ref.watch(themeModeProvider.notifier).setTheme(m),
                   ),
                 ),
               ],
@@ -51,61 +56,61 @@ class SettingsScreen extends ConsumerWidget {
             const SizedBox(height: 20),
 
             // Language
-            SettingsGroup(
-              title: 'Language & Region',
-              children: [
-                SettingsTile(
-                  icon: Icons.language_rounded,
-                  title: 'App Language',
-                  subtitle: 'English (US)',
-                  iconColor: const Color(0xFF059669),
-                  onTap: () => _showLanguageSheet(context),
-                ),
-                SettingsTile(
-                  icon: Icons.translate_rounded,
-                  title: 'OCR Languages',
-                  subtitle: 'English, Urdu',
-                  iconColor: const Color(0xFFF59E0B),
-                  onTap: () => _showOcrLanguageSheet(context),
-                ),
-              ],
-            ),
+            // SettingsGroup(
+            //   title: 'Language & Region',
+            //   children: [
+            //     SettingsTile(
+            //       icon: Icons.language_rounded,
+            //       title: 'App Language',
+            //       subtitle: 'English (US)',
+            //       iconColor: const Color(0xFF059669),
+            //       onTap: () => _showLanguageSheet(context),
+            //     ),
+            //     SettingsTile(
+            //       icon: Icons.translate_rounded,
+            //       title: 'OCR Languages',
+            //       subtitle: 'English, Urdu',
+            //       iconColor: const Color(0xFFF59E0B),
+            //       onTap: () => _showOcrLanguageSheet(context),
+            //     ),
+            //   ],
+            // ),
 
-            const SizedBox(height: 20),
+            //const SizedBox(height: 20),
 
             // Export
-            SettingsGroup(
-              title: 'Export Defaults',
-              children: [
-                SettingsTile(
-                  icon: Icons.picture_as_pdf_rounded,
-                  title: 'Default Format',
-                  subtitle: 'PDF',
-                  iconColor: AppColors.pdfColor,
-                  onTap: () {},
-                ),
-                SettingsTile(
-                  icon: Icons.compress_rounded,
-                  title: 'PDF Quality',
-                  subtitle: 'High (300 DPI)',
-                  iconColor: AppColors.docxColor,
-                  onTap: () {},
-                ),
-                SettingsTile(
-                  icon: Icons.auto_fix_high_rounded,
-                  title: 'Auto-enhance Images',
-                  subtitle: 'Improve contrast before OCR',
-                  iconColor: const Color(0xFF8B5CF6),
-                  trailing: Switch(
-                    value: true,
-                    onChanged: (_) {},
-                    activeThumbColor: AppColors.primary,
-                  ),
-                ),
-              ],
-            ),
+            // SettingsGroup(
+            //   title: 'Export Defaults',
+            //   children: [
+            //     SettingsTile(
+            //       icon: Icons.picture_as_pdf_rounded,
+            //       title: 'Default Format',
+            //       subtitle: 'PDF',
+            //       iconColor: AppColors.pdfColor,
+            //       onTap: () {},
+            //     ),
+            //     SettingsTile(
+            //       icon: Icons.compress_rounded,
+            //       title: 'PDF Quality',
+            //       subtitle: 'High (300 DPI)',
+            //       iconColor: AppColors.docxColor,
+            //       onTap: () {},
+            //     ),
+            //     SettingsTile(
+            //       icon: Icons.auto_fix_high_rounded,
+            //       title: 'Auto-enhance Images',
+            //       subtitle: 'Improve contrast before OCR',
+            //       iconColor: const Color(0xFF8B5CF6),
+            //       trailing: Switch(
+            //         value: true,
+            //         onChanged: (_) {},
+            //         activeThumbColor: AppColors.primary,
+            //       ),
+            //     ),
+            //   ],
+            // ),
 
-            const SizedBox(height: 20),
+            // const SizedBox(height: 20),
 
             // Storage
             SettingsGroup(
@@ -114,9 +119,11 @@ class SettingsScreen extends ConsumerWidget {
                 SettingsTile(
                   icon: Icons.folder_rounded,
                   title: 'Document Storage',
-                  subtitle: '$documentCount documents · ~2.4 MB',
+                  subtitle: '$documentCount documents',
                   iconColor: const Color(0xFFF59E0B),
-                  onTap: () {},
+                  onTap: () {
+                    _confirmClearStorage(context, ref);
+                  },
                 ),
                 SettingsTile(
                   icon: Icons.delete_sweep_rounded,
@@ -137,7 +144,7 @@ class SettingsScreen extends ConsumerWidget {
                 const SettingsTile(
                   icon: Icons.info_outline_rounded,
                   title: 'Version',
-                  subtitle: '1.0.0 (build 1)',
+                  subtitle: appVersion,
                   iconColor: AppColors.neutral500,
                 ),
                 SettingsTile(
@@ -222,25 +229,25 @@ class SettingsScreen extends ConsumerWidget {
     }
   }
 
-  void _showLanguageSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: AppRadius.xl),
-      ),
-      builder: (ctx) => const _LanguageSheet(),
-    );
-  }
+  // void _showLanguageSheet(BuildContext context) {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     shape: const RoundedRectangleBorder(
+  //       borderRadius: BorderRadius.vertical(top: AppRadius.xl),
+  //     ),
+  //     builder: (ctx) => const _LanguageSheet(),
+  //   );
+  // }
 
-  void _showOcrLanguageSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: AppRadius.xl),
-      ),
-      builder: (ctx) => const _OcrLanguageSheet(),
-    );
-  }
+  // void _showOcrLanguageSheet(BuildContext context) {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     shape: const RoundedRectangleBorder(
+  //       borderRadius: BorderRadius.vertical(top: AppRadius.xl),
+  //     ),
+  //     builder: (ctx) => const _OcrLanguageSheet(),
+  //   );
+  // }
 
   void _confirmClearCache(BuildContext context) {
     showDialog(
@@ -252,14 +259,51 @@ class SettingsScreen extends ConsumerWidget {
             'Temporary files will be removed. Your documents will not be affected.'),
         actions: [
           TextButton(
+            onPressed: () => ctx.pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              await clearAppCache();
+              ctx.pop();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Cache cleared')),
+              );
+            },
+            child: const Text('Clear'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmClearStorage(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.borderLg),
+        title: const Text('Clear storage?'),
+        content:
+            const Text('All stored data will be removed including documents.'),
+        actions: [
+          TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () {
-              Navigator.pop(ctx);
+            onPressed: () async {
+              try {
+                await ref.read(documentsProvider.notifier).clearAll();
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Error clearing storage: $e')),
+                );
+                return;
+              }
+
+              ctx.pop();
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Cache cleared')),
+                const SnackBar(content: Text('Storage cleared')),
               );
             },
             child: const Text('Clear'),

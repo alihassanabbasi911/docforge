@@ -1,4 +1,5 @@
 // lib/screens/history/history_screen.dart
+import 'package:docforge/features/utils/share_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -25,6 +26,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     final isDark = theme.brightness == Brightness.dark;
     final searchQuery = ref.watch(historySearchProvider);
     final allDocs = ref.watch(documentsProvider);
+    final sortOptions = ref.watch(sortOptionProvider);
 
     // Apply search + format filter
     var filtered = allDocs.where((d) {
@@ -37,6 +39,20 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
     // Group by date
     final grouped = _groupByDate(filtered);
+    if (sortOptions.$2) {
+      // Group by name
+      // This will override the date grouping, but that's expected
+      grouped.clear();
+      grouped.addAll(_groupByName(filtered));
+    } else if (sortOptions.$3) {
+      // Group by format
+      grouped.clear();
+      grouped.addAll(_groupByFormat(filtered));
+    } else if (!sortOptions.$1) {
+      // Oldest first (default is newest first)
+      grouped.clear();
+      grouped.addAll(_groupByOldestFirst(filtered));
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -79,6 +95,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                             padding: const EdgeInsets.only(right: 8),
                             child: !(f == DocumentFormat.jpeg ||
                                     f == DocumentFormat.png ||
+                                    f == DocumentFormat.doc ||
                                     f == DocumentFormat.jpg)
                                 ? _FilterChip(
                                     label: f.label,
@@ -147,12 +164,22 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                                     }
                                     context.push(AppRoutes.editor);
                                   },
-                                  onShare: () {
+                                  onShare: () async {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                           content:
                                               Text('Sharing ${doc.name}…')),
                                     );
+                                    if (doc.path != null) {
+                                      await shareDocument(doc.path!);
+                                    } else {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                            content: Text(
+                                                'File not found for ${doc.name}')),
+                                      );
+                                    }
                                   },
                                   onDelete: () =>
                                       _confirmDelete(context, ref, doc),
@@ -167,6 +194,39 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
         ],
       ),
     );
+  }
+
+  Map<String, List<Document>> _groupByFormat(List<Document> docs) {
+    final result = <String, List<Document>>{};
+
+    for (final doc in docs) {
+      final key = doc.format.label;
+      result.putIfAbsent(key, () => []).add(doc);
+    }
+
+    return result;
+  }
+
+  Map<String, List<Document>> _groupByName(List<Document> docs) {
+    final result = <String, List<Document>>{};
+
+    for (final doc in docs) {
+      final key = doc.name[0].toUpperCase();
+      result.putIfAbsent(key, () => []).add(doc);
+    }
+
+    return result;
+  }
+
+  Map<String, List<Document>> _groupByOldestFirst(List<Document> docs) {
+    final result = <String, List<Document>>{};
+
+    for (final doc in docs) {
+      final key = DateFormat('yyyy-MM-dd').format(doc.createdAt);
+      result.putIfAbsent(key, () => []).add(doc);
+    }
+
+    return result;
   }
 
   Map<String, List<Document>> _groupByDate(List<Document> docs) {
@@ -207,8 +267,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () {
-              ref.read(documentProvider.notifier).removeDocument(doc.id);
+            onPressed: () async {
+              await ref.read(documentsProvider.notifier).remove(doc.id);
               Navigator.pop(ctx);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('${doc.name} deleted')),
@@ -259,12 +319,12 @@ class _FilterChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
           color: isSelected
-              ? activeColor.withOpacity(isDark ? 0.25 : 0.12)
+              ? activeColor.withAlpha(isDark ? 80 : 30)
               : (isDark ? AppColors.darkSurface2 : AppColors.neutral100),
           borderRadius: AppRadius.borderFull,
           border: Border.all(
             color: isSelected
-                ? activeColor.withOpacity(0.6)
+                ? activeColor.withAlpha(isDark ? 200 : 150)
                 : (isDark ? AppColors.darkSurface3 : AppColors.neutral200),
             width: isSelected ? 1.5 : 1,
           ),
@@ -302,7 +362,7 @@ class _EmptyHistoryState extends StatelessWidget {
             Icon(
               hasQuery ? Icons.search_off_rounded : Icons.history_rounded,
               size: 48,
-              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+              color: theme.colorScheme.onSurfaceVariant.withAlpha(128),
             ),
             const SizedBox(height: 16),
             Text(
@@ -331,18 +391,24 @@ class _EmptyHistoryState extends StatelessWidget {
   }
 }
 
-class _SortSheet extends StatelessWidget {
+class _SortSheet extends ConsumerStatefulWidget {
   const _SortSheet();
 
   @override
+  ConsumerState<_SortSheet> createState() => _SortSheetState();
+}
+
+class _SortSheetState extends ConsumerState<_SortSheet> {
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final sortOptions = ref.watch(sortOptionProvider);
 
     final options = [
-      ('Date (Newest first)', Icons.calendar_today_rounded, true),
-      ('Date (Oldest first)', Icons.calendar_today_outlined, false),
-      ('Name (A–Z)', Icons.sort_by_alpha_rounded, false),
-      ('Format type', Icons.filter_list_rounded, false),
+      ('Date (Newest first)', Icons.calendar_today_rounded, sortOptions.$1),
+      ('Date (Oldest first)', Icons.calendar_today_outlined, !sortOptions.$1),
+      ('Name (A–Z)', Icons.sort_by_alpha_rounded, sortOptions.$2),
+      ('Format type', Icons.filter_list_rounded, sortOptions.$3),
     ];
 
     return Padding(
@@ -378,7 +444,20 @@ class _SortSheet extends StatelessWidget {
                       ? const Icon(Icons.check_rounded,
                           color: AppColors.primary)
                       : null,
-                  onTap: () => Navigator.pop(context),
+                  onTap: () {
+                    final option = ref.read(sortOptionProvider.notifier);
+                    if (opt.$1.contains('Newest')) {
+                      option.setSort((true, false, false));
+                    } else if (opt.$1.contains('Oldest')) {
+                      option.setSort((false, false, false));
+                    } else if (opt.$1.contains('Name')) {
+                      option.setSort((false, true, false));
+                    } else if (opt.$1.contains('Format')) {
+                      option.setSort((false, false, true));
+                    }
+
+                    Navigator.pop(context);
+                  },
                 )),
           ],
         ),

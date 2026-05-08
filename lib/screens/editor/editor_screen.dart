@@ -20,7 +20,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
   final bool _isEditing = false;
   bool _isBold = false;
   bool _isItalic = false;
-  String _documentName = 'Untitled Document';
+  String _documentName = 'Extracted Text';
   final _nameController = TextEditingController();
 
   @override
@@ -90,6 +90,15 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
+    final state = ref.read(extractTextProvider);
+    state.whenOrNull(
+      data: (text) {
+        if (text != null && _textController.text.isEmpty) {
+          _textController.text = text;
+        }
+      },
+    );
+
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
@@ -124,19 +133,19 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
             onPressed: _copyAll,
           ),
           const SizedBox(width: 4),
-          FilledButton.icon(
-            onPressed: () => context.push(AppRoutes.export),
-            icon: const Icon(Icons.file_download_rounded, size: 18),
-            label: const Text('Export'),
-            style: FilledButton.styleFrom(
-              minimumSize: const Size(0, 36),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              shape: const RoundedRectangleBorder(
-                borderRadius: AppRadius.borderMd,
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
+          // FilledButton.icon(
+          //   onPressed: () => context.push(AppRoutes.export),
+          //   icon: const Icon(Icons.file_download_rounded, size: 18),
+          //   label: const Text('Export'),
+          //   style: FilledButton.styleFrom(
+          //     minimumSize: const Size(0, 36),
+          //     padding: const EdgeInsets.symmetric(horizontal: 16),
+          //     shape: const RoundedRectangleBorder(
+          //       borderRadius: AppRadius.borderMd,
+          //     ),
+          //   ),
+          // ),
+          // const SizedBox(width: 16),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
@@ -204,17 +213,6 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
                               setState(() => _isItalic = !_isItalic),
                           onCopy: _copyAll,
                           onTranslate: () => _showTranslateBottomSheet(context),
-                          onClear: () {
-                            showDialog(
-                              context: context,
-                              builder: (_) => _ClearDialog(
-                                onConfirm: () {
-                                  _textController.clear();
-                                  setState(() {});
-                                },
-                              ),
-                            );
-                          },
                         ),
 
                         Divider(
@@ -225,56 +223,42 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
                         ),
 
                         // Text editor area
-                        Consumer(
-                          builder: (context, ref, child) {
-                            final state = ref.watch(extractTextProvider);
-                            state.whenOrNull(
-                              data: (text) {
-                                if (text != null &&
-                                    _textController.text.isEmpty) {
-                                  _textController.text = text;
-                                }
-                              },
-                            );
-                            return Padding(
-                              padding: const EdgeInsets.all(24),
-                              child: TextField(
-                                controller: _textController,
-                                focusNode: _focusNode,
-                                maxLines: null,
-                                onChanged: (_) => setState(() {}),
-                                style: TextStyle(
-                                  fontFamily: 'Plus Jakarta Sans',
-                                  fontSize: 15,
-                                  fontWeight: _isBold
-                                      ? FontWeight.w700
-                                      : FontWeight.w400,
-                                  fontStyle: _isItalic
-                                      ? FontStyle.italic
-                                      : FontStyle.normal,
-                                  height: 1.8,
-                                  color: isDark
-                                      ? AppColors.neutral200
-                                      : AppColors.neutral800,
-                                  letterSpacing: 0.1,
-                                ),
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  contentPadding: EdgeInsets.zero,
-                                  filled: false,
-                                  hintText: 'Extracted text will appear here…',
-                                  hintStyle: TextStyle(
-                                    color: theme.colorScheme.onSurfaceVariant,
-                                    fontSize: 15,
-                                    fontStyle: FontStyle.italic,
-                                  ),
-                                ),
-                                cursorColor: AppColors.primary,
-                                cursorWidth: 2,
+                        Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: TextField(
+                            controller: _textController,
+                            focusNode: _focusNode,
+                            maxLines: null,
+                            onChanged: (_) => setState(() {}),
+                            style: TextStyle(
+                              fontFamily: 'Plus Jakarta Sans',
+                              fontSize: 15,
+                              fontWeight:
+                                  _isBold ? FontWeight.w700 : FontWeight.w400,
+                              fontStyle: _isItalic
+                                  ? FontStyle.italic
+                                  : FontStyle.normal,
+                              height: 1.8,
+                              color: isDark
+                                  ? AppColors.neutral200
+                                  : AppColors.neutral800,
+                              letterSpacing: 0.1,
+                            ),
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.zero,
+                              filled: false,
+                              hintText: 'Extracted text will appear here…',
+                              hintStyle: TextStyle(
+                                color: theme.colorScheme.onSurfaceVariant,
+                                fontSize: 15,
+                                fontStyle: FontStyle.italic,
                               ),
-                            );
-                          },
-                        ),
+                            ),
+                            cursorColor: AppColors.primary,
+                            cursorWidth: 2,
+                          ),
+                        )
                       ],
                     ),
                   ),
@@ -286,17 +270,17 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
       ),
 
       // Floating action button for export
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push(AppRoutes.export),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        elevation: 2,
-        icon: const Icon(Icons.ios_share_rounded, size: 20),
-        label: const Text(
-          'Convert & Export',
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
-      ),
+      // floatingActionButton: FloatingActionButton.extended(
+      //   onPressed: () => context.push(AppRoutes.export),
+      //   backgroundColor: AppColors.primary,
+      //   foregroundColor: Colors.white,
+      //   elevation: 2,
+      //   icon: const Icon(Icons.ios_share_rounded, size: 20),
+      //   label: const Text(
+      //     'Convert & Export',
+      //     style: TextStyle(fontWeight: FontWeight.w600),
+      //   ),
+      // ),
     );
   }
 
@@ -319,7 +303,6 @@ class _FormattingToolbar extends StatelessWidget {
   final VoidCallback onItalic;
   final VoidCallback onCopy;
   final VoidCallback onTranslate;
-  final VoidCallback onClear;
 
   const _FormattingToolbar({
     required this.isBold,
@@ -328,7 +311,6 @@ class _FormattingToolbar extends StatelessWidget {
     required this.onItalic,
     required this.onCopy,
     required this.onTranslate,
-    required this.onClear,
   });
 
   @override
@@ -376,12 +358,6 @@ class _FormattingToolbar extends StatelessWidget {
             onTap: onTranslate,
           ),
           const Spacer(),
-          _IconToolbarButton(
-            icon: Icons.delete_outline_rounded,
-            tooltip: 'Clear text',
-            onTap: onClear,
-            color: AppColors.error,
-          ),
         ],
       ),
     );

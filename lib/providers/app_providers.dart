@@ -4,15 +4,29 @@ import 'dart:async';
 import 'package:docforge/features/services/extract_text.dart';
 import 'package:docforge/features/services/file_picker_service.dart';
 import 'package:docforge/repositories/document_repository.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:docforge/repositories/theme_repo.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 import '../models/document.dart';
 
 // ---------------------------------------------------------------------------
 // Theme Provider
 // ---------------------------------------------------------------------------
-final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.system);
+final themeModeProvider = StateNotifierProvider<ThemeNotifier, ThemeMode>(
+    (ref) => ThemeNotifier(ThemeRepository()));
+
+class ThemeNotifier extends StateNotifier<ThemeMode> {
+  final ThemeRepository repository;
+
+  ThemeNotifier(this.repository) : super(repository.getTheme());
+
+  void setTheme(ThemeMode mode) {
+    repository.saveTheme(mode);
+    state = mode;
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Document History Provider
@@ -357,6 +371,11 @@ class DocumentsNotifier extends StateNotifier<List<Document>> {
         if (d.id == doc.id) doc else d
     ];
   }
+
+  Future<void> clearAll() async {
+    await repo.clearAll();
+    state = [];
+  }
 }
 
 final torchControlProvider = StateNotifierProvider<TorchNotifier, bool>(
@@ -367,4 +386,15 @@ class TorchNotifier extends StateNotifier<bool> {
   TorchNotifier() : super(false);
 
   void toggle() => state = !state;
+}
+
+final sortOptionProvider =
+    StateNotifierProvider<SortNotifier, (bool, bool, bool)>(
+  (ref) => SortNotifier(),
+);
+
+class SortNotifier extends StateNotifier<(bool, bool, bool)> {
+  SortNotifier() : super((true, false, false));
+
+  void setSort((bool, bool, bool) option) => state = option;
 }
