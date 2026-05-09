@@ -48,7 +48,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         curve: Curves.easeInOut,
       );
     } else {
-      context.go(AppRoutes.home);
+      context.go(AppRoutes.login);
     }
   }
 
@@ -98,7 +98,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     ],
                   ),
                   TextButton(
-                    onPressed: () => context.go(AppRoutes.home),
+                    onPressed: () => context.go(AppRoutes.login),
                     child: const Text('Skip'),
                   ),
                 ],
@@ -275,7 +275,7 @@ class _OnboardingPageView extends StatelessWidget {
                     width: 96,
                     height: 96,
                     decoration: BoxDecoration(
-                      color: data.iconColor.withOpacity(0.15),
+                      color: data.iconColor.withAlpha(38), // 0.15 * 255
                       shape: BoxShape.circle,
                     ),
                     child: Icon(

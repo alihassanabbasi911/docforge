@@ -1,0 +1,357 @@
+// lib/screens/auth/login_screen.dart
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import '../../theme/app_theme.dart';
+import '../../widgets/auth_widgets.dart';
+import 'register_screen.dart';
+import 'forgot_password_screen.dart';
+
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen>
+    with SingleTickerProviderStateMixin {
+  final _formKey       = GlobalKey<FormState>();
+  final _emailCtrl     = TextEditingController();
+  final _passwordCtrl  = TextEditingController();
+
+  bool _rememberMe = false;
+  bool _isLoading  = false;
+
+  late final AnimationController _animCtrl;
+  late final Animation<double>   _fadeAnim;
+  late final Animation<Offset>   _slideAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _animCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 650),
+    )..forward();
+
+    _fadeAnim  = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
+    _slideAnim = Tween<Offset>(begin: const Offset(0, 0.06), end: Offset.zero)
+        .animate(CurvedAnimation(parent: _animCtrl, curve: Curves.easeOutCubic));
+  }
+
+  @override
+  void dispose() {
+    _emailCtrl.dispose();
+    _passwordCtrl.dispose();
+    _animCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    FocusScope.of(context).unfocus();
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+    HapticFeedback.lightImpact();
+
+    // Simulate API call
+    await Future.delayed(const Duration(milliseconds: 1800));
+    if (!mounted) return;
+
+    setState(() => _isLoading = false);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Welcome back to DocForge! 🎉'),
+        duration: Duration(seconds: 3),
+      ),
+    );
+  }
+
+  void _socialLogin(String provider) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$provider sign-in — connect OAuth to enable')),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme    = Theme.of(context);
+    final size     = MediaQuery.sizeOf(context);
+    final padding  = MediaQuery.paddingOf(context);
+
+    return Scaffold(
+      body: AuthBackground(
+        child: SafeArea(
+          child: FadeTransition(
+            opacity: _fadeAnim,
+            child: SlideTransition(
+              position: _slideAnim,
+              child: SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(28, 20, 28, padding.bottom + 24),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: size.height - padding.top - padding.bottom - 44,
+                  ),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+
+                        // ── Logo ────────────────────────────────────
+                        const Center(child: ForgeLogoMark(size: 52)),
+
+                        const SizedBox(height: 40),
+
+                        // ── Headline ────────────────────────────────
+                        Text('Welcome back',
+                            style: theme.textTheme.headlineMedium),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Sign in to your account to continue',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+
+                        const SizedBox(height: 32),
+
+                        // ── Form ────────────────────────────────────
+                        Form(
+                          key: _formKey,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+
+                              // Email
+                              ForgeTextField(
+                                label: 'Email address',
+                                hint: 'you@example.com',
+                                prefixIcon: Icons.email_outlined,
+                                controller: _emailCtrl,
+                                keyboardType: TextInputType.emailAddress,
+                                textInputAction: TextInputAction.next,
+                                autofocus: true,
+                                validator: (v) {
+                                  if (v == null || v.trim().isEmpty) {
+                                    return 'Email is required';
+                                  }
+                                  if (!RegExp(r'^[\w\-.]+@([\w\-]+\.)+[\w]{2,}$')
+                                      .hasMatch(v.trim())) {
+                                    return 'Enter a valid email address';
+                                  }
+                                  return null;
+                                },
+                              ),
+
+                              const SizedBox(height: 16),
+
+                              // Password
+                              ForgeTextField(
+                                label: 'Password',
+                                hint: '••••••••',
+                                prefixIcon: Icons.lock_outline_rounded,
+                                controller: _passwordCtrl,
+                                isPassword: true,
+                                textInputAction: TextInputAction.done,
+                                onEditingComplete: _submit,
+                                validator: (v) {
+                                  if (v == null || v.isEmpty) {
+                                    return 'Password is required';
+                                  }
+                                  if (v.length < 6) {
+                                    return 'Password must be at least 6 characters';
+                                  }
+                                  return null;
+                                },
+                              ),
+
+                              const SizedBox(height: 14),
+
+                              // Remember me + Forgot password
+                              Row(
+                                children: [
+                                  // Remember me
+                                  GestureDetector(
+                                    onTap: () => setState(
+                                        () => _rememberMe = !_rememberMe),
+                                    behavior: HitTestBehavior.opaque,
+                                    child: Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 22,
+                                          height: 22,
+                                          child: Checkbox(
+                                            value: _rememberMe,
+                                            onChanged: (v) => setState(
+                                                () => _rememberMe = v ?? false),
+                                            materialTapTargetSize:
+                                                MaterialTapTargetSize.shrinkWrap,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          'Remember me',
+                                          style: theme.textTheme.bodySmall
+                                              ?.copyWith(
+                                                  fontWeight: FontWeight.w500),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  const Spacer(),
+
+                                  // Forgot password
+                                  TextButton(
+                                    onPressed: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            const ForgotPasswordScreen(),
+                                      ),
+                                    ),
+                                    style: TextButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 4),
+                                      minimumSize: Size.zero,
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                    child: const Text('Forgot password?'),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 28),
+
+                              // Sign In Button
+                              _SubmitButton(
+                                label: 'Sign In',
+                                icon: Icons.arrow_forward_rounded,
+                                isLoading: _isLoading,
+                                onPressed: _submit,
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 28),
+
+                        // ── Social Auth ─────────────────────────────
+                        const OrDivider(),
+                        const SizedBox(height: 20),
+
+                        SocialButton(
+                          label: 'Continue with Google',
+                          icon: const GoogleIcon(size: 20),
+                          onTap: () => _socialLogin('Google'),
+                        ),
+                        const SizedBox(height: 12),
+                        SocialButton(
+                          label: 'Continue with Apple',
+                          icon: const AppleIcon(size: 22),
+                          onTap: () => _socialLogin('Apple'),
+                        ),
+
+                        const Spacer(),
+                        const SizedBox(height: 32),
+
+                        // ── Register Link ───────────────────────────
+                        AuthLinkRow(
+                          question: "Don't have an account?",
+                          actionLabel: 'Create one',
+                          onTap: () => Navigator.pushReplacement(
+                            context,
+                            _fadeRoute(const RegisterScreen()),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+// Register Screen
+// ─────────────────────────────────────────────
+
+// lib/screens/auth/register_screen.dart
+// (imported above — see separate file)
+
+// ─────────────────────────────────────────────
+// Shared: animated submit button
+// ─────────────────────────────────────────────
+class _SubmitButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool isLoading;
+  final VoidCallback onPressed;
+
+  const _SubmitButton({
+    required this.label,
+    required this.icon,
+    required this.isLoading,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FilledButton(
+      onPressed: isLoading ? null : onPressed,
+      style: FilledButton.styleFrom(
+        minimumSize: const Size(double.infinity, 54),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.borderMd),
+        backgroundColor: AppColors.primary,
+        disabledBackgroundColor: AppColors.primary.withOpacity(0.6),
+        elevation: 0,
+      ).copyWith(
+        overlayColor: WidgetStateProperty.all(Colors.white.withOpacity(0.12)),
+      ),
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 220),
+        child: isLoading
+            ? const SizedBox(
+                key: ValueKey('loading'),
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  valueColor: AlwaysStoppedAnimation(Colors.white),
+                ),
+              )
+            : Row(
+                key: const ValueKey('label'),
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Icon(icon, size: 18, color: Colors.white),
+                ],
+              ),
+      ),
+    );
+  }
+}
+
+PageRouteBuilder<void> _fadeRoute(Widget page) => PageRouteBuilder(
+      pageBuilder: (_, __, ___) => page,
+      transitionsBuilder: (_, anim, __, child) =>
+          FadeTransition(opacity: anim, child: child),
+      transitionDuration: const Duration(milliseconds: 300),
+    );

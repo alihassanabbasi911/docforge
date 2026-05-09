@@ -55,7 +55,7 @@ class HomeScreen extends ConsumerWidget {
             SnackBar(
               content: Text('Error extracting text: $error'),
               behavior: SnackBarBehavior.fixed,
-              duration: const Duration(minutes: 4),
+              duration: const Duration(seconds: 4),
             ),
           );
         },
@@ -85,7 +85,7 @@ class HomeScreen extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '${_greeting()} 👋',
+                              '${_greeting()} ',
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
@@ -100,7 +100,8 @@ class HomeScreen extends ConsumerWidget {
                       ),
                       // Avatar / Profile button
                       GestureDetector(
-                        onTap: () => context.go(AppRoutes.settings),
+                        onTap: () =>
+                            ref.read(navIndexProvider.notifier).state = 1,
                         child: Container(
                           width: 44,
                           height: 44,

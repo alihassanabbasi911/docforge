@@ -51,7 +51,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     } else if (!sortOptions.$1) {
       // Oldest first (default is newest first)
       grouped.clear();
-      grouped.addAll(_groupByOldestFirst(filtered));
+      grouped.addAll(_sortByOldestFirst(filtered));
     }
 
     return Scaffold(
@@ -199,8 +199,16 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   Map<String, List<Document>> _groupByFormat(List<Document> docs) {
     final result = <String, List<Document>>{};
 
+    docs.sort((a, b) => a.format.label
+        .toLowerCase()
+        .trim()
+        .compareTo(b.format.label.toLowerCase().trim()));
+
     for (final doc in docs) {
-      final key = doc.format.label;
+      final raw = doc.format.label;
+
+      final key = (raw.trim().isEmpty) ? 'Unknown' : raw.trim();
+
       result.putIfAbsent(key, () => []).add(doc);
     }
 
@@ -210,19 +218,55 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   Map<String, List<Document>> _groupByName(List<Document> docs) {
     final result = <String, List<Document>>{};
 
+    docs.sort((a, b) =>
+        a.name.trim().toLowerCase().compareTo(b.name.trim().toLowerCase()));
+
     for (final doc in docs) {
-      final key = doc.name[0].toUpperCase();
+      final trimmed = doc.name.trim();
+
+      String key;
+
+      if (trimmed.isEmpty) {
+        key = '#';
+      } else {
+        final firstChar = trimmed.characters.first;
+
+        if (RegExp(r'[A-Za-z]').hasMatch(firstChar)) {
+          key = firstChar.toUpperCase();
+        } else {
+          key = '#';
+        }
+      }
+
       result.putIfAbsent(key, () => []).add(doc);
     }
 
     return result;
   }
 
-  Map<String, List<Document>> _groupByOldestFirst(List<Document> docs) {
-    final result = <String, List<Document>>{};
+  Map<String, List<Document>> _sortByOldestFirst(List<Document> docs) {
+    final now = DateTime.now();
+
+    docs.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+
+    final Map<String, List<Document>> result = {};
 
     for (final doc in docs) {
-      final key = DateFormat('yyyy-MM-dd').format(doc.createdAt);
+      final diff = now.difference(doc.createdAt).inDays;
+
+      String key;
+      if (diff == 0) {
+        key = 'Today';
+      } else if (diff == 1) {
+        key = 'Yesterday';
+      } else if (diff < 7) {
+        key = 'This Week';
+      } else if (diff < 30) {
+        key = 'This Month';
+      } else {
+        key = DateFormat('MMMM yyyy').format(doc.createdAt);
+      }
+
       result.putIfAbsent(key, () => []).add(doc);
     }
 
@@ -230,11 +274,16 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   }
 
   Map<String, List<Document>> _groupByDate(List<Document> docs) {
-    final result = <String, List<Document>>{};
     final now = DateTime.now();
+
+    // STEP 1: Sort (newest first)
+    docs.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+    final Map<String, List<Document>> result = {};
 
     for (final doc in docs) {
       final diff = now.difference(doc.createdAt).inDays;
+
       String key;
       if (diff == 0) {
         key = 'Today';

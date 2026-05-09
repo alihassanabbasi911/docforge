@@ -1,4 +1,7 @@
 // lib/router/app_router.dart
+import 'package:docforge/screens/auth/login_screen.dart';
+import 'package:docforge/screens/auth/register_screen.dart';
+import 'package:docforge/screens/auth/forgot_password_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../screens/onboarding/onboarding_screen.dart';
@@ -13,6 +16,9 @@ import '../screens/settings/settings_screen.dart';
 
 abstract class AppRoutes {
   static const onboarding = '/onboarding';
+  static const register = '/register';
+  static const login = '/login';
+  static const forgotPassword = '/forgot-password';
   static const home = '/';
   static const scan = '/scan';
   static const processing = '/processing';
@@ -33,38 +39,59 @@ final appRouter = GoRouter(
         const OnboardingScreen(),
       ),
     ),
+    GoRoute(
+      path: AppRoutes.login,
+      pageBuilder: (ctx, state) => _slideTransition(state, const LoginScreen()),
+    ),
+    GoRoute(
+      path: AppRoutes.register,
+      pageBuilder: (ctx, state) =>
+          _slideTransition(state, const RegisterScreen()),
+    ),
+    GoRoute(
+      path: AppRoutes.forgotPassword,
+      pageBuilder: (ctx, state) =>
+          _slideTransition(state, const ForgotPasswordScreen()),
+    ),
     ShellRoute(
       builder: (ctx, state, child) => AppShell(child: child),
       routes: [
         GoRoute(
           path: AppRoutes.home,
-          pageBuilder: (ctx, state) => _slideTransition(state, const HomeScreen()),
+          pageBuilder: (ctx, state) =>
+              _slideTransition(state, const HomeScreen()),
         ),
         GoRoute(
           path: AppRoutes.history,
-          pageBuilder: (ctx, state) => _slideTransition(state, const HistoryScreen()),
+          pageBuilder: (ctx, state) =>
+              _slideTransition(state, const HistoryScreen()),
         ),
         GoRoute(
           path: AppRoutes.settings,
-          pageBuilder: (ctx, state) => _slideTransition(state, const SettingsScreen()),
+          pageBuilder: (ctx, state) =>
+              _slideTransition(state, const SettingsScreen()),
         ),
       ],
     ),
     GoRoute(
       path: AppRoutes.scan,
-      pageBuilder: (ctx, state) => _slideUpTransition(state, const ScanScreen()),
+      pageBuilder: (ctx, state) =>
+          _slideUpTransition(state, const ScanScreen()),
     ),
     GoRoute(
       path: AppRoutes.processing,
-      pageBuilder: (ctx, state) => _fadeTransition(state, const ProcessingScreen()),
+      pageBuilder: (ctx, state) =>
+          _fadeTransition(state, const ProcessingScreen()),
     ),
     GoRoute(
       path: AppRoutes.editor,
-      pageBuilder: (ctx, state) => _slideTransition(state, const EditorScreen()),
+      pageBuilder: (ctx, state) =>
+          _slideTransition(state, const EditorScreen()),
     ),
     GoRoute(
       path: AppRoutes.export,
-      pageBuilder: (ctx, state) => _slideUpTransition(state, const ExportScreen()),
+      pageBuilder: (ctx, state) =>
+          _slideUpTransition(state, const ExportScreen()),
     ),
   ],
 );
@@ -98,7 +125,8 @@ CustomTransitionPage<void> _slideTransition(GoRouterState state, Widget child) {
   );
 }
 
-CustomTransitionPage<void> _slideUpTransition(GoRouterState state, Widget child) {
+CustomTransitionPage<void> _slideUpTransition(
+    GoRouterState state, Widget child) {
   return CustomTransitionPage<void>(
     key: state.pageKey,
     child: child,
