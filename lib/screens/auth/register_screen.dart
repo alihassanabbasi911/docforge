@@ -1,32 +1,36 @@
 // lib/screens/auth/register_screen.dart
+import 'package:docforge/providers/auth_providers.dart';
+import 'package:docforge/router/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/auth_widgets.dart';
 import 'login_screen.dart';
 
-class RegisterScreen extends StatefulWidget {
+class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen>
+class _RegisterScreenState extends ConsumerState<RegisterScreen>
     with SingleTickerProviderStateMixin {
-  final _formKey          = GlobalKey<FormState>();
-  final _nameCtrl         = TextEditingController();
-  final _emailCtrl        = TextEditingController();
-  final _passwordCtrl     = TextEditingController();
-  final _confirmCtrl      = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final _nameCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
+  final _passwordCtrl = TextEditingController();
+  final _confirmCtrl = TextEditingController();
 
   bool _acceptedTerms = false;
-  bool _isLoading     = false;
+  bool _isLoading = false;
   bool _obscureConfirm = true;
 
   late final AnimationController _animCtrl;
-  late final Animation<double>   _fadeAnim;
-  late final Animation<Offset>   _slideAnim;
+  late final Animation<double> _fadeAnim;
+  late final Animation<Offset> _slideAnim;
 
   @override
   void initState() {
@@ -36,9 +40,10 @@ class _RegisterScreenState extends State<RegisterScreen>
       duration: const Duration(milliseconds: 650),
     )..forward();
 
-    _fadeAnim  = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
+    _fadeAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
     _slideAnim = Tween<Offset>(begin: const Offset(0, 0.06), end: Offset.zero)
-        .animate(CurvedAnimation(parent: _animCtrl, curve: Curves.easeOutCubic));
+        .animate(
+            CurvedAnimation(parent: _animCtrl, curve: Curves.easeOutCubic));
 
     // Rebuild on password change so strength indicator updates
     _passwordCtrl.addListener(() => setState(() {}));
@@ -69,30 +74,76 @@ class _RegisterScreenState extends State<RegisterScreen>
     setState(() => _isLoading = true);
     HapticFeedback.lightImpact();
 
-    // Simulate API call
-    await Future.delayed(const Duration(milliseconds: 2000));
-    if (!mounted) return;
+    // API call
+    await ref.read(authProvider.notifier).registerWithEmailAndPassword(
+          name: _nameCtrl.text.trim(),
+          email: _emailCtrl.text.trim(),
+          password: _passwordCtrl.text.trim(),
+        );
 
     setState(() => _isLoading = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Account created! Welcome, ${_nameCtrl.text.trim().split(' ').first} 🎉'),
-        duration: const Duration(seconds: 3),
-      ),
-    );
   }
 
-  void _socialRegister(String provider) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$provider sign-up — connect OAuth to enable')),
-    );
+  void _socialRegister(String provider) async {
+    HapticFeedback.lightImpact();
+    if (provider == 'Google') {
+      await ref.read(authProvider.notifier).signInWithGoogle();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme   = Theme.of(context);
-    final size    = MediaQuery.sizeOf(context);
+    final theme = Theme.of(context);
+    final size = MediaQuery.sizeOf(context);
     final padding = MediaQuery.paddingOf(context);
+
+    ref.listen(authProvider, (prev, next) {
+      next.when(
+        data: (value) {
+          // Account created successfully, but user still needs to verify email
+          context.pop();
+          showAboutDialog(
+              context: context,
+              barrierDismissible: false,
+              children: [
+                const Text(
+                    'Your account has been created! Please check your email for a verification link before logging in.'),
+              ]);
+          context.go(AppRoutes.login);
+        },
+        error: (e, st) {
+          context.pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                e.toString(),
+                style: const TextStyle(color: Colors.white),
+              ),
+              behavior: SnackBarBehavior.floating,
+              shape: Border.all(),
+              backgroundColor: Colors.blue,
+            ),
+          );
+        },
+        loading: () {
+          showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) {
+                return const AlertDialog(
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 16),
+                      Text('Creating account...'),
+                    ],
+                  ),
+                );
+              });
+        },
+      );
+    });
 
     return Scaffold(
       body: AuthBackground(
@@ -111,7 +162,6 @@ class _RegisterScreenState extends State<RegisterScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-
                         // ── Logo ────────────────────────────────────
                         const Center(child: ForgeLogoMark(size: 52)),
 
@@ -162,7 +212,6 @@ class _RegisterScreenState extends State<RegisterScreen>
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-
                               // Full name
                               ForgeTextField(
                                 label: 'Full name',
@@ -226,6 +275,14 @@ class _RegisterScreenState extends State<RegisterScreen>
                                   }
                                   if (v.length < 8) {
                                     return 'Password must be at least 8 characters';
+                                  }
+                                  if (!RegExp(r'^(?=.*[A-Za-z])(?=.*\d).+$')
+                                      .hasMatch(v)) {
+                                    return 'Password must contain letters and numbers';
+                                  }
+                                  if (_confirmCtrl.text.isNotEmpty &&
+                                      v != _confirmCtrl.text) {
+                                    return 'Passwords do not match';
                                   }
                                   return null;
                                 },
@@ -421,9 +478,7 @@ class _TermsCheckbox extends StatelessWidget {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: accepted
-              ? (isDark
-                  ? const Color(0xFF1E1B4B)
-                  : AppColors.primaryContainer)
+              ? (isDark ? const Color(0xFF1E1B4B) : AppColors.primaryContainer)
               : (isDark ? AppColors.darkSurface2 : AppColors.neutral50),
           borderRadius: AppRadius.borderMd,
           border: Border.all(
@@ -527,7 +582,8 @@ class _TermsSheet extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Row(
               children: [
-                const Icon(Icons.description_outlined, color: AppColors.primary),
+                const Icon(Icons.description_outlined,
+                    color: AppColors.primary),
                 const SizedBox(width: 10),
                 Text('Terms of Service', style: theme.textTheme.titleMedium),
               ],
@@ -605,8 +661,7 @@ class _TermsSection extends StatelessWidget {
                 color: AppColors.primary,
               )),
           const SizedBox(height: 6),
-          Text(body,
-              style: theme.textTheme.bodySmall?.copyWith(height: 1.7)),
+          Text(body, style: theme.textTheme.bodySmall?.copyWith(height: 1.7)),
         ],
       ),
     );

@@ -1,30 +1,34 @@
 // lib/screens/auth/login_screen.dart
+import 'package:docforge/providers/auth_providers.dart';
+import 'package:docforge/router/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/auth_widgets.dart';
 import 'register_screen.dart';
 import 'forgot_password_screen.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen>
+class _LoginScreenState extends ConsumerState<LoginScreen>
     with SingleTickerProviderStateMixin {
-  final _formKey       = GlobalKey<FormState>();
-  final _emailCtrl     = TextEditingController();
-  final _passwordCtrl  = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final _emailCtrl = TextEditingController();
+  final _passwordCtrl = TextEditingController();
 
   bool _rememberMe = false;
-  bool _isLoading  = false;
+  bool _isLoading = false;
 
   late final AnimationController _animCtrl;
-  late final Animation<double>   _fadeAnim;
-  late final Animation<Offset>   _slideAnim;
+  late final Animation<double> _fadeAnim;
+  late final Animation<Offset> _slideAnim;
 
   @override
   void initState() {
@@ -34,9 +38,10 @@ class _LoginScreenState extends State<LoginScreen>
       duration: const Duration(milliseconds: 650),
     )..forward();
 
-    _fadeAnim  = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
+    _fadeAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
     _slideAnim = Tween<Offset>(begin: const Offset(0, 0.06), end: Offset.zero)
-        .animate(CurvedAnimation(parent: _animCtrl, curve: Curves.easeOutCubic));
+        .animate(
+            CurvedAnimation(parent: _animCtrl, curve: Curves.easeOutCubic));
   }
 
   @override
@@ -55,30 +60,66 @@ class _LoginScreenState extends State<LoginScreen>
     HapticFeedback.lightImpact();
 
     // Simulate API call
-    await Future.delayed(const Duration(milliseconds: 1800));
-    if (!mounted) return;
+    await ref.read(authProvider.notifier).loginInWithEmailAndPassword(
+          email: _emailCtrl.text.trim(),
+          password: _passwordCtrl.text,
+        );
 
     setState(() => _isLoading = false);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Welcome back to DocForge! 🎉'),
-        duration: Duration(seconds: 3),
-      ),
-    );
   }
 
-  void _socialLogin(String provider) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$provider sign-in — connect OAuth to enable')),
-    );
+  void _socialLogin(String provider) async {
+    HapticFeedback.lightImpact();
+    if (provider == 'Google') {
+      await ref.read(authProvider.notifier).signInWithGoogle();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme    = Theme.of(context);
-    final size     = MediaQuery.sizeOf(context);
-    final padding  = MediaQuery.paddingOf(context);
+    final theme = Theme.of(context);
+    final size = MediaQuery.sizeOf(context);
+    final padding = MediaQuery.paddingOf(context);
+
+    ref.listen(authProvider, (prev, next) {
+      next.when(
+        data: (value) {
+          context.go(AppRoutes.home);
+        },
+        error: (e, st) {
+          context.pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                e.toString(),
+                style: const TextStyle(color: Colors.white),
+              ),
+              behavior: SnackBarBehavior.floating,
+              shape: const RoundedRectangleBorder(
+                  borderRadius: AppRadius.borderSm),
+              backgroundColor: const Color.fromARGB(255, 106, 26, 243),
+            ),
+          );
+        },
+        loading: () {
+          showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) {
+                return const AlertDialog(
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 16),
+                      Text('Logging in...'),
+                    ],
+                  ),
+                );
+              });
+        },
+      );
+    });
 
     return Scaffold(
       body: AuthBackground(
@@ -97,7 +138,6 @@ class _LoginScreenState extends State<LoginScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-
                         // ── Logo ────────────────────────────────────
                         const Center(child: ForgeLogoMark(size: 52)),
 
@@ -123,7 +163,6 @@ class _LoginScreenState extends State<LoginScreen>
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-
                               // Email
                               ForgeTextField(
                                 label: 'Email address',
@@ -137,7 +176,8 @@ class _LoginScreenState extends State<LoginScreen>
                                   if (v == null || v.trim().isEmpty) {
                                     return 'Email is required';
                                   }
-                                  if (!RegExp(r'^[\w\-.]+@([\w\-]+\.)+[\w]{2,}$')
+                                  if (!RegExp(
+                                          r'^[\w\-.]+@([\w\-]+\.)+[\w]{2,}$')
                                       .hasMatch(v.trim())) {
                                     return 'Enter a valid email address';
                                   }
@@ -187,7 +227,8 @@ class _LoginScreenState extends State<LoginScreen>
                                             onChanged: (v) => setState(
                                                 () => _rememberMe = v ?? false),
                                             materialTapTargetSize:
-                                                MaterialTapTargetSize.shrinkWrap,
+                                                MaterialTapTargetSize
+                                                    .shrinkWrap,
                                           ),
                                         ),
                                         const SizedBox(width: 8),
