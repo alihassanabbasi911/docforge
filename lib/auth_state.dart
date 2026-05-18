@@ -15,7 +15,6 @@ class _AuthStateScreenState extends ConsumerState<AuthStateScreen> {
   @override
   void initState() {
     super.initState();
-
     ref.listenManual(authStateProvider, (prev, next) {
       next.when(
         data: (user) {
@@ -27,6 +26,9 @@ class _AuthStateScreenState extends ConsumerState<AuthStateScreen> {
         },
         error: (e, st) {
           context.go(AppRoutes.onboarding);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(e.toString())),
+          );
         },
         loading: () {},
       );

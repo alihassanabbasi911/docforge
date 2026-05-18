@@ -1,13 +1,14 @@
 import 'dart:async';
 
 import 'package:docforge/repositories/auth_repository.dart';
+import 'package:docforge/repositories/user_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final authRepositoryProvider =
     Provider<AuthRepository>((ref) => AuthRepository());
 
-final authStateProvider =
-    StreamProvider((ref) => ref.read(authRepositoryProvider).authStateStream());
+final authStateProvider = StreamProvider(
+    (ref) => ref.watch(authRepositoryProvider).authStateStream());
 
 final authProvider = AsyncNotifierProvider<AuthNotifier, void>(
   () => AuthNotifier(),
@@ -27,7 +28,7 @@ class AuthNotifier extends AsyncNotifier<void> {
     try {
       state = const AsyncValue.loading();
       await _authRepository.registerWithEmailAndPassword(
-          email: email, password: password);
+          name: name, email: email, password: password);
       state = const AsyncValue.data(null);
       return true;
     } catch (e, st) {
@@ -60,4 +61,21 @@ class AuthNotifier extends AsyncNotifier<void> {
       state = AsyncValue.error(e, st);
     }
   }
+
+  Future<void> logout() async {
+    try {
+      state = const AsyncValue.loading();
+      await _authRepository.signOut();
+      state = const AsyncValue.data(null);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
 }
+
+final userRepositoryProvider = Provider((ref) => UserRepository());
+
+final currentUserProvider = Provider((ref) {
+  final user = ref.watch(userRepositoryProvider).getUser();
+  return user;
+});

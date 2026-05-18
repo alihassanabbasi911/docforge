@@ -80,6 +80,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
           email: _emailCtrl.text.trim(),
           password: _passwordCtrl.text.trim(),
         );
+    final state = ref.read(authProvider);
+    state.whenData(
+      (value) {
+        showAboutDialog(context: context, barrierDismissible: false, children: [
+          const Text(
+              'Your account has been created! Please check your email for a verification link before logging in.'),
+        ]);
+        context.go(AppRoutes.login);
+      },
+    );
 
     setState(() => _isLoading = false);
   }
@@ -88,6 +98,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
     HapticFeedback.lightImpact();
     if (provider == 'Google') {
       await ref.read(authProvider.notifier).signInWithGoogle();
+      final state = ref.read(authProvider);
+      state.whenData(
+        (value) {
+          context.go(AppRoutes.home);
+        },
+      );
     }
   }
 
@@ -102,14 +118,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
         data: (value) {
           // Account created successfully, but user still needs to verify email
           context.pop();
-          showAboutDialog(
-              context: context,
-              barrierDismissible: false,
-              children: [
-                const Text(
-                    'Your account has been created! Please check your email for a verification link before logging in.'),
-              ]);
-          context.go(AppRoutes.login);
         },
         error: (e, st) {
           context.pop();
@@ -215,7 +223,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
                               // Full name
                               ForgeTextField(
                                 label: 'Full name',
-                                hint: 'Ali Hassan Abbasi',
+                                hint: 'John Doe',
                                 prefixIcon: Icons.person_outline_rounded,
                                 controller: _nameCtrl,
                                 keyboardType: TextInputType.name,

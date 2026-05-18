@@ -1,5 +1,6 @@
 // lib/screens/home/home_screen.dart
 import 'package:docforge/features/utils/share_file.dart';
+import 'package:docforge/providers/auth_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -25,6 +26,8 @@ class HomeScreen extends ConsumerWidget {
     final isDark = theme.brightness == Brightness.dark;
     final documents = ref.watch(documentsProvider);
     final recentDocs = documents.take(3).toList();
+    final userName = ref.watch(currentUserProvider);
+
     ref.listen(extractTextProvider, (prev, next) {
       next.whenOrNull(
         data: (data) {
@@ -92,34 +95,36 @@ class HomeScreen extends ConsumerWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'DocForge',
+                              userName != null
+                                  ? userName.displayName ?? 'User'
+                                  : "User",
                               style: theme.textTheme.headlineSmall,
                             ),
                           ],
                         ),
                       ),
                       // Avatar / Profile button
-                      GestureDetector(
-                        onTap: () =>
-                            ref.read(navIndexProvider.notifier).state = 1,
-                        child: Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: AppColors.primaryContainer,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: AppColors.primary.withAlpha(77),
-                              width: 2,
-                            ),
-                          ),
-                          child: const Icon(
-                            Icons.person_rounded,
-                            color: AppColors.primary,
-                            size: 22,
-                          ),
-                        ),
-                      ),
+                      // GestureDetector(
+                      //   onTap: () =>
+                      //       ref.read(navIndexProvider.notifier).state = 2,
+                      //   child: Container(
+                      //     width: 44,
+                      //     height: 44,
+                      //     decoration: BoxDecoration(
+                      //       color: AppColors.primaryContainer,
+                      //       shape: BoxShape.circle,
+                      //       border: Border.all(
+                      //         color: AppColors.primary.withAlpha(77),
+                      //         width: 2,
+                      //       ),
+                      //     ),
+                      //     child: const Icon(
+                      //       Icons.person_rounded,
+                      //       color: AppColors.primary,
+                      //       size: 22,
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),

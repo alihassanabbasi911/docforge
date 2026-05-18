@@ -3,6 +3,7 @@ import 'package:docforge/auth_state.dart';
 import 'package:docforge/screens/auth/login_screen.dart';
 import 'package:docforge/screens/auth/register_screen.dart';
 import 'package:docforge/screens/auth/forgot_password_screen.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../screens/onboarding/onboarding_screen.dart';
@@ -31,21 +32,23 @@ abstract class AppRoutes {
 }
 
 final appRouter = GoRouter(
-  initialLocation: AppRoutes.onboarding,
+  initialLocation: AppRoutes.authStateChanges,
   debugLogDiagnostics: false,
   routes: [
-    GoRoute(
-      path: AppRoutes.onboarding,
-      pageBuilder: (ctx, state) => _fadeTransition(
-        state,
-        const OnboardingScreen(),
-      ),
-    ),
+    // lib/router/app_router.dart
+
     GoRoute(
       path: AppRoutes.authStateChanges,
       pageBuilder: (ctx, state) => _fadeTransition(
         state,
         const AuthStateScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.onboarding,
+      pageBuilder: (ctx, state) => _fadeTransition(
+        state,
+        const OnboardingScreen(),
       ),
     ),
     GoRoute(

@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:docforge/features/utils/cache_clearer.dart';
 import 'package:docforge/main.dart';
+import 'package:docforge/providers/auth_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -20,6 +21,46 @@ class SettingsScreen extends ConsumerWidget {
     final themeMode = ref.watch(themeModeProvider);
     final documentCount = ref.watch(documentsProvider).length;
 
+    ref.listen(authProvider, (prev, next) {
+      next.whenOrNull(
+          data: (data) => context.pop(),
+          error: (e, stackTrace) {
+            context.pop();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  e.toString(),
+                  style: const TextStyle(color: Colors.white),
+                ),
+                behavior: SnackBarBehavior.floating,
+                shape: const RoundedRectangleBorder(
+                    borderRadius: AppRadius.borderSm),
+                backgroundColor: AppColors.primary,
+              ),
+            );
+          },
+          loading: () {
+            showAdaptiveDialog(
+              barrierDismissible: false,
+              context: context,
+              builder: (context) {
+                return const AlertDialog(
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 16),
+                      Text(
+                        "Logging out...",
+                      )
+                    ],
+                  ),
+                );
+              },
+            );
+          });
+    });
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -31,9 +72,9 @@ class SettingsScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Profile card
-            _ProfileCard(documentCount: documentCount),
+            // _ProfileCard(documentCount: documentCount),
 
-            const SizedBox(height: 28),
+            const SizedBox(height: 10),
 
             // Appearance
             SettingsGroup(
@@ -45,7 +86,7 @@ class SettingsScreen extends ConsumerWidget {
                   subtitle: _themeModeLabel(themeMode),
                   iconColor: const Color(0xFF6366F1),
                   trailing: _ThemeSegmentedControl(
-                    current: themeMode, 
+                    current: themeMode,
                     onChange: (m) =>
                         ref.watch(themeModeProvider.notifier).setTheme(m),
                   ),
@@ -173,6 +214,24 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ],
             ),
+            const SizedBox(height: 20),
+
+            SettingsGroup(title: "Account", children: [
+              SettingsTile(
+                icon: Icons.logout,
+                iconColor: Colors.redAccent,
+                title: "Logout",
+                onTap: () async {
+                  await ref.read(authProvider.notifier).logout();
+                },
+              ),
+              SettingsTile(
+                icon: Icons.no_accounts_rounded,
+                iconColor: Colors.red,
+                title: "Delete Account",
+                onTap: () async {},
+              ),
+            ]),
 
             const SizedBox(height: 32),
 

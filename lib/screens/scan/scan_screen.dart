@@ -53,7 +53,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
         data: (data) {
           if (data != null) {
             context.pop();
-            context.push(AppRoutes.editor);
+            context.go(AppRoutes.editor);
           }
         },
         loading: () {

@@ -1,0 +1,71 @@
+# ============================================================
+# flutter_launcher_icons configuration
+# File: flutter_launcher_icons.yaml (project root)
+# ============================================================
+#
+# SETUP:
+#   1. Add to pubspec.yaml dev_dependencies:
+#        flutter_launcher_icons: ^0.14.1
+#
+#   2. Add to pubspec.yaml flutter section:
+#        flutter:
+#          assets:
+#            - assets/icon/
+#            - assets/splash/
+#
+#   3. Export your master SVG as PNG:
+#        - 1024×1024 PNG → assets/icon/docforge_icon.png
+#          (full icon with gradient background)
+#        - 1024×1024 PNG → assets/icon/docforge_icon_ios.png
+#          (same, no rounded corners — App Store handles rounding)
+#        - 432×432 PNG  → assets/icon/ic_launcher_foreground.png
+#          (document artwork only, transparent bg — adaptive foreground)
+#
+#   4. Run:
+#        dart run flutter_launcher_icons
+#
+# The package generates ALL required sizes automatically:
+#   iOS:     20pt → 1024pt (App Store)
+#   Android: mdpi → xxxhdpi for mipmap folders
+#            + adaptive icon layers
+#   Web:     favicon + PWA icons
+# ============================================================
+
+flutter_launcher_icons:
+  # ── Android ───────────────────────────────────────────────
+  android: true
+  # Source: full icon with indigo gradient background
+  # 1024×1024 PNG exported from docforge_icon_master.svg
+  image_path_android: "assets/icon/docforge_icon.png"
+
+  # Adaptive icon (Android 8.0+)
+  adaptive_icon_background: "#4F46E5" # solid fallback color
+  # OR use a drawable:  adaptive_icon_background: "@drawable/ic_launcher_background"
+  adaptive_icon_foreground: "assets/icon/ic_launcher_foreground.png"
+  # Monochrome layer (Android 13+ themed icons)
+
+  # ── iOS ───────────────────────────────────────────────────
+  ios: true
+  # Source: 1024×1024 PNG, NO alpha channel, NO rounded corners
+  # (App Store + iOS applies rounding automatically)
+  image_path_ios: "assets/icon/docforge_icon.png"
+  # Remove alpha channel if present (required for App Store submission)
+  remove_alpha_ios: true
+
+  # ── Web (optional) ────────────────────────────────────────
+  web:
+    generate: false
+    image_path: "assets/icon/docforge_icon.png"
+    background_color: "#4F46E5"
+    theme_color: "#4F46E5"
+
+  # ── macOS (optional) ──────────────────────────────────────
+  macos:
+    generate: false
+    image_path: "assets/icon/docforge_icon.png"
+
+  # ── Windows (optional) ────────────────────────────────────
+  windows:
+    generate: false
+    image_path: "assets/icon/docforge_icon.png"
+    icon_size: 256
