@@ -71,6 +71,33 @@ class AuthNotifier extends AsyncNotifier<void> {
       state = AsyncValue.error(e, st);
     }
   }
+
+  String getProviderId() {
+    final userInfo = ref.read(userRepositoryProvider).getAuthProvider();
+    return userInfo.first.providerId;
+  }
+
+  Future<void> deletePasswordAccount(String password) async {
+    try {
+      state = const AsyncValue.loading();
+      await ref
+          .read(userRepositoryProvider)
+          .deleteEmailAndPasswordAccount(password);
+      state = const AsyncValue.data(null);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+
+  Future<void> deleteSocialAccount() async {
+    try {
+      state = const AsyncValue.loading();
+      await ref.read(userRepositoryProvider).deleteSocialAccount();
+      state = const AsyncValue.data(null);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
 }
 
 final userRepositoryProvider = Provider((ref) => UserRepository());

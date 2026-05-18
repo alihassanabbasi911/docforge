@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:docforge/features/utils/cache_clearer.dart';
 import 'package:docforge/main.dart';
 import 'package:docforge/providers/auth_providers.dart';
+import 'package:docforge/router/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -22,43 +23,43 @@ class SettingsScreen extends ConsumerWidget {
     final documentCount = ref.watch(documentsProvider).length;
 
     ref.listen(authProvider, (prev, next) {
-      next.whenOrNull(
-          data: (data) => context.pop(),
-          error: (e, stackTrace) {
-            context.pop();
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  e.toString(),
-                  style: const TextStyle(color: Colors.white),
-                ),
-                behavior: SnackBarBehavior.floating,
-                shape: const RoundedRectangleBorder(
-                    borderRadius: AppRadius.borderSm),
-                backgroundColor: AppColors.primary,
+      next.whenOrNull(data: (data) {
+        context.pop();
+        context.go(AppRoutes.authStateChanges);
+      }, error: (e, stackTrace) {
+        context.pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              e.toString(),
+              style: const TextStyle(color: Colors.white),
+            ),
+            behavior: SnackBarBehavior.floating,
+            shape:
+                const RoundedRectangleBorder(borderRadius: AppRadius.borderSm),
+            backgroundColor: AppColors.primary,
+          ),
+        );
+      }, loading: () {
+        showAdaptiveDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return const AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text(
+                    "Please Wait...",
+                  )
+                ],
               ),
             );
           },
-          loading: () {
-            showAdaptiveDialog(
-              barrierDismissible: false,
-              context: context,
-              builder: (context) {
-                return const AlertDialog(
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CircularProgressIndicator(),
-                      SizedBox(height: 16),
-                      Text(
-                        "Logging out...",
-                      )
-                    ],
-                  ),
-                );
-              },
-            );
-          });
+        );
+      });
     });
 
     return Scaffold(
@@ -229,7 +230,17 @@ class SettingsScreen extends ConsumerWidget {
                 icon: Icons.no_accounts_rounded,
                 iconColor: Colors.red,
                 title: "Delete Account",
-                onTap: () async {},
+                onTap: () async {
+                  final provider =
+                      ref.read(authProvider.notifier).getProviderId();
+                  if (provider == 'password') {
+                    context.push(AppRoutes.deleteAccountPage);
+                  } else if (provider == 'google.com') {
+                    await ref.read(authProvider.notifier).deleteSocialAccount();
+                  } else {
+                    print("Invalid Provider");
+                  }
+                },
               ),
             ]),
 

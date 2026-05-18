@@ -83,10 +83,35 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
     final state = ref.read(authProvider);
     state.whenData(
       (value) {
-        showAboutDialog(context: context, barrierDismissible: false, children: [
-          const Text(
-              'Your account has been created! Please check your email for a verification link before logging in.'),
-        ]);
+        showAdaptiveDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (ctx) {
+              return AlertDialog(
+                title: const Text(
+                  "Congratulations",
+                  style: TextStyle(
+                      color: Colors.green,
+                      fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.bold),
+                ),
+                content: const Text(
+                  'Account Created! Please verify your email to login',
+                  style: TextStyle(color: Colors.black),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      context.pop();
+                    },
+                    child: const Text(
+                      'OK',
+                      style: TextStyle(color: Colors.indigo),
+                    ),
+                  ),
+                ],
+              );
+            });
         context.go(AppRoutes.login);
       },
     );
