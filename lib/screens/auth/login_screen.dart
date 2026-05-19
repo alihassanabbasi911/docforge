@@ -1,6 +1,6 @@
 // lib/screens/auth/login_screen.dart
-import 'package:docforge/providers/auth_providers.dart';
-import 'package:docforge/router/app_router.dart';
+import 'package:FlexScan/providers/auth_providers.dart';
+import 'package:FlexScan/router/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -289,12 +289,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           icon: const GoogleIcon(size: 20),
                           onTap: () => _socialLogin('Google'),
                         ),
-                        const SizedBox(height: 12),
-                        SocialButton(
-                          label: 'Continue with Apple',
-                          icon: const AppleIcon(size: 22),
-                          onTap: () => _socialLogin('Apple'),
-                        ),
+                        // const SizedBox(height: 12),
+                        // SocialButton(
+                        //   label: 'Continue with Microsoft',
+                        //   icon: const MicrosoftIcon(size: 22),
+                        //   onTap: () => _socialLogin('Microsoft'),
+                        // ),
 
                         const Spacer(),
                         const SizedBox(height: 32),

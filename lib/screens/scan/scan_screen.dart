@@ -1,5 +1,6 @@
 // lib/screens/scan/scan_screen.dart
-import 'package:docforge/screens/scan/camera_screen.dart';
+
+import 'package:FlexScan/screens/scan/camera_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

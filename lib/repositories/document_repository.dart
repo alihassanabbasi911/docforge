@@ -1,4 +1,5 @@
-import 'package:docforge/models/document.dart';
+import 'package:FlexScan/models/document.dart';
+
 import 'package:hive/hive.dart';
 
 class DocumentRepository {

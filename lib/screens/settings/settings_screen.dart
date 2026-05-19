@@ -1,19 +1,49 @@
 // lib/screens/settings/settings_screen.dart
 import 'dart:ui';
 
-import 'package:docforge/features/utils/cache_clearer.dart';
-import 'package:docforge/main.dart';
-import 'package:docforge/providers/auth_providers.dart';
-import 'package:docforge/router/app_router.dart';
+import 'package:FlexScan/features/utils/cache_clearer.dart';
+import 'package:FlexScan/features/utils/open_links.dart';
+import 'package:FlexScan/links/app_links.dart';
+import 'package:FlexScan/main.dart';
+import 'package:FlexScan/providers/auth_providers.dart';
+import 'package:FlexScan/router/app_router.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../../providers/app_providers.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common_widgets.dart';
+import 'dart:io';
+
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
+
+  Future<void> sendFeedback() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+
+    final version = packageInfo.version;
+
+    final Uri emailUri = Uri(
+      scheme: 'mailto',
+      path: 'almaaturidi@gmail.com',
+      queryParameters: {
+        'subject': 'FlexScan Feedback',
+        'body': '''
+App Version: $version
+Platform: ${Platform.operatingSystem}
+
+Describe your issue or feedback below:
+
+''',
+      },
+    );
+
+    await launchUrl(emailUri);
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -193,25 +223,52 @@ class SettingsScreen extends ConsumerWidget {
                   icon: Icons.privacy_tip_outlined,
                   title: 'Privacy Policy',
                   iconColor: AppColors.neutral500,
-                  onTap: () {},
+                  onTap: () async {
+                    await openLink(AppLinks.privacy);
+                  },
                 ),
                 SettingsTile(
                   icon: Icons.description_outlined,
                   title: 'Terms of Service',
                   iconColor: AppColors.neutral500,
-                  onTap: () {},
+                  onTap: () async {
+                    await openLink(AppLinks.terms);
+                  },
                 ),
                 SettingsTile(
                   icon: Icons.star_outline_rounded,
-                  title: 'Rate DocForge',
+                  title: 'Rate FlexScan',
                   iconColor: const Color(0xFFF59E0B),
-                  onTap: () {},
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: const Text('Coming Soon'),
+                        content: const Text(
+                          'FlexScan will be available on Play Store soon.',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => context.pop(),
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
                 SettingsTile(
                   icon: Icons.feedback_outlined,
                   title: 'Send Feedback',
                   iconColor: AppColors.primary,
-                  onTap: () {},
+                  onTap: () async {
+                    try {
+                      await sendFeedback();
+                    } catch (e) {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(SnackBar(content: Text(e.toString())));
+                    }
+                  },
                 ),
               ],
             ),
@@ -237,8 +294,6 @@ class SettingsScreen extends ConsumerWidget {
                     context.push(AppRoutes.deleteAccountPage);
                   } else if (provider == 'google.com') {
                     await ref.read(authProvider.notifier).deleteSocialAccount();
-                  } else {
-                    print("Invalid Provider");
                   }
                 },
               ),

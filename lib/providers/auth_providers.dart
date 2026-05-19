@@ -1,7 +1,8 @@
 import 'dart:async';
 
-import 'package:docforge/repositories/auth_repository.dart';
-import 'package:docforge/repositories/user_repository.dart';
+import 'package:FlexScan/repositories/auth_repository.dart';
+import 'package:FlexScan/repositories/user_repository.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final authRepositoryProvider =

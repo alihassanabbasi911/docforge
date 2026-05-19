@@ -1,14 +1,14 @@
 // lib/providers/app_providers.dart
 import 'dart:async';
 
-import 'package:docforge/features/services/extract_text.dart';
-import 'package:docforge/features/services/file_picker_service.dart';
-import 'package:docforge/repositories/document_repository.dart';
-import 'package:docforge/repositories/theme_repo.dart';
+import 'package:FlexScan/features/services/extract_text.dart';
+import 'package:FlexScan/features/services/file_picker_service.dart';
+import 'package:FlexScan/repositories/document_repository.dart';
+import 'package:FlexScan/repositories/theme_repo.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
+
 import '../models/document.dart';
 
 // ---------------------------------------------------------------------------

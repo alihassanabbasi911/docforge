@@ -187,31 +187,46 @@ class PasswordStrengthIndicator extends StatelessWidget {
 
   Color _color(PasswordStrength s) {
     switch (s) {
-      case PasswordStrength.empty:    return AppColors.neutral300;
-      case PasswordStrength.weak:     return AppColors.error;
-      case PasswordStrength.fair:     return AppColors.warning;
-      case PasswordStrength.strong:   return AppColors.success;
-      case PasswordStrength.veryStrong: return const Color(0xFF059669);
+      case PasswordStrength.empty:
+        return AppColors.neutral300;
+      case PasswordStrength.weak:
+        return AppColors.error;
+      case PasswordStrength.fair:
+        return AppColors.warning;
+      case PasswordStrength.strong:
+        return AppColors.success;
+      case PasswordStrength.veryStrong:
+        return const Color(0xFF059669);
     }
   }
 
   String _label(PasswordStrength s) {
     switch (s) {
-      case PasswordStrength.empty:    return '';
-      case PasswordStrength.weak:     return 'Weak';
-      case PasswordStrength.fair:     return 'Fair';
-      case PasswordStrength.strong:   return 'Strong';
-      case PasswordStrength.veryStrong: return 'Very Strong';
+      case PasswordStrength.empty:
+        return '';
+      case PasswordStrength.weak:
+        return 'Weak';
+      case PasswordStrength.fair:
+        return 'Fair';
+      case PasswordStrength.strong:
+        return 'Strong';
+      case PasswordStrength.veryStrong:
+        return 'Very Strong';
     }
   }
 
   int _filledBars(PasswordStrength s) {
     switch (s) {
-      case PasswordStrength.empty:    return 0;
-      case PasswordStrength.weak:     return 1;
-      case PasswordStrength.fair:     return 2;
-      case PasswordStrength.strong:   return 3;
-      case PasswordStrength.veryStrong: return 4;
+      case PasswordStrength.empty:
+        return 0;
+      case PasswordStrength.weak:
+        return 1;
+      case PasswordStrength.fair:
+        return 2;
+      case PasswordStrength.strong:
+        return 3;
+      case PasswordStrength.veryStrong:
+        return 4;
     }
   }
 
@@ -237,7 +252,9 @@ class PasswordStrengthIndicator extends StatelessWidget {
                   duration: const Duration(milliseconds: 250),
                   height: 4,
                   decoration: BoxDecoration(
-                    color: i < filled ? color : theme.colorScheme.surfaceContainerHighest,
+                    color: i < filled
+                        ? color
+                        : theme.colorScheme.surfaceContainerHighest,
                     borderRadius: AppRadius.borderFull,
                   ),
                 ),
@@ -248,7 +265,8 @@ class PasswordStrengthIndicator extends StatelessWidget {
         const SizedBox(height: 6),
         Row(
           children: [
-            const Icon(Icons.shield_outlined, size: 13, color: AppColors.neutral400),
+            const Icon(Icons.shield_outlined,
+                size: 13, color: AppColors.neutral400),
             const SizedBox(width: 4),
             Text(
               'Password strength: ',
@@ -381,18 +399,26 @@ class _GoogleIconPainter extends CustomPainter {
     final r = size.width / 2;
 
     // Simplified Google "G" icon using colored arcs
-    final red    = Paint()..color = const Color(0xFFEA4335)..style = PaintingStyle.fill;
-    final green  = Paint()..color = const Color(0xFF34A853)..style = PaintingStyle.fill;
-    final blue   = Paint()..color = const Color(0xFF4285F4)..style = PaintingStyle.fill;
-    final yellow = Paint()..color = const Color(0xFFFBBC05)..style = PaintingStyle.fill;
+    final red = Paint()
+      ..color = const Color(0xFFEA4335)
+      ..style = PaintingStyle.fill;
+    final green = Paint()
+      ..color = const Color(0xFF34A853)
+      ..style = PaintingStyle.fill;
+    final blue = Paint()
+      ..color = const Color(0xFF4285F4)
+      ..style = PaintingStyle.fill;
+    final yellow = Paint()
+      ..color = const Color(0xFFFBBC05)
+      ..style = PaintingStyle.fill;
 
     final outerRect = Rect.fromCircle(center: center, radius: r);
 
     // Draw quadrant arcs to approximate the Google logo
-    canvas.drawArc(outerRect, -1.57, 1.57, true, blue);   // top right (blue)
-    canvas.drawArc(outerRect,  0,    1.57, true, red);     // bottom right (red)
-    canvas.drawArc(outerRect,  1.57, 1.57, true, yellow);  // bottom left (yellow)
-    canvas.drawArc(outerRect, -3.14, 1.57, true, green);   // top left (green)
+    canvas.drawArc(outerRect, -1.57, 1.57, true, blue); // top right (blue)
+    canvas.drawArc(outerRect, 0, 1.57, true, red); // bottom right (red)
+    canvas.drawArc(outerRect, 1.57, 1.57, true, yellow); // bottom left (yellow)
+    canvas.drawArc(outerRect, -3.14, 1.57, true, green); // top left (green)
 
     // White center circle to create the "G" cutout feel
     canvas.drawCircle(center, r * 0.55, Paint()..color = Colors.white);
@@ -412,17 +438,17 @@ class _GoogleIconPainter extends CustomPainter {
 // ─────────────────────────────────────────────
 // Apple Icon
 // ─────────────────────────────────────────────
-class AppleIcon extends StatelessWidget {
+class MicrosoftIcon extends StatelessWidget {
   final double size;
-  const AppleIcon({super.key, this.size = 20});
+  const MicrosoftIcon({super.key, this.size = 20});
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Icon(
-      Icons.apple_rounded,
+      Icons.window_sharp,
       size: size,
-      color: isDark ? Colors.white : Colors.black,
+      color: isDark ? Colors.yellow : Colors.indigo,
     );
   }
 }
@@ -639,7 +665,8 @@ class _OtpInputState extends State<OtpInput> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: AppRadius.borderMd,
-                borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                borderSide:
+                    const BorderSide(color: AppColors.primary, width: 2),
               ),
             ),
           ),

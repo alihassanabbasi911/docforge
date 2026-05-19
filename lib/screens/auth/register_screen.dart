@@ -1,6 +1,9 @@
 // lib/screens/auth/register_screen.dart
-import 'package:docforge/providers/auth_providers.dart';
-import 'package:docforge/router/app_router.dart';
+import 'package:FlexScan/features/utils/open_links.dart';
+import 'package:FlexScan/links/app_links.dart';
+import 'package:FlexScan/providers/auth_providers.dart';
+import 'package:FlexScan/router/app_router.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -223,14 +226,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
                                 onTap: () => _socialRegister('Google'),
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: SocialButton(
-                                label: 'Apple',
-                                icon: const AppleIcon(size: 20),
-                                onTap: () => _socialRegister('Apple'),
-                              ),
-                            ),
+                            // const SizedBox(width: 12),
+                            // Expanded(
+                            //   child: SocialButton(
+                            //     label: 'Microsoft',
+                            //     icon: const MicrosoftIcon(size: 20),
+                            //     onTap: () => _socialRegister('Microsoft'),
+                            //   ),
+                            // ),
                           ],
                         ),
 
@@ -343,8 +346,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
                                 accepted: _acceptedTerms,
                                 onChanged: (v) =>
                                     setState(() => _acceptedTerms = v),
-                                onTermsTap: () => _showTermsSheet(context),
-                                onPrivacyTap: () => _showTermsSheet(context),
+                                onTermsTap: () async {
+                                  await openLink(AppLinks.terms);
+                                },
+                                onPrivacyTap: () async {
+                                  await openLink(AppLinks.privacy);
+                                },
                               ),
 
                               const SizedBox(height: 24),
@@ -381,16 +388,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
           ),
         ),
       ),
-    );
-  }
-
-  void _showTermsSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: AppRadius.xl)),
-      builder: (_) => const _TermsSheet(),
     );
   }
 }
@@ -578,124 +575,6 @@ class _TermsCheckbox extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────
-// Terms Bottom Sheet
-// ─────────────────────────────────────────────
-class _TermsSheet extends StatelessWidget {
-  const _TermsSheet();
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: 0.65,
-      maxChildSize: 0.9,
-      builder: (ctx, scrollController) => Column(
-        children: [
-          const SizedBox(height: 12),
-          Center(
-            child: Container(
-              width: 36,
-              height: 4,
-              decoration: BoxDecoration(
-                color: theme.dividerColor,
-                borderRadius: AppRadius.borderFull,
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Row(
-              children: [
-                const Icon(Icons.description_outlined,
-                    color: AppColors.primary),
-                const SizedBox(width: 10),
-                Text('Terms of Service', style: theme.textTheme.titleMedium),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Divider(color: theme.dividerColor),
-          Expanded(
-            child: SingleChildScrollView(
-              controller: scrollController,
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _TermsSection('1. Acceptance of Terms',
-                      'By creating a DocForge account, you agree to these Terms of Service, our Privacy Policy, and all applicable laws and regulations.'),
-                  _TermsSection('2. Use of Service',
-                      'DocForge provides document scanning, OCR, and conversion services. You may use the service only for lawful purposes and in accordance with these Terms.'),
-                  _TermsSection('3. Your Content',
-                      'You retain ownership of documents you process through DocForge. By using the service, you grant us a limited license to process your content for the purpose of delivering our services.'),
-                  _TermsSection('4. Privacy',
-                      'We collect minimal data necessary to operate the service. We do not sell your personal information to third parties. Document content is processed ephemerally and not stored permanently unless you choose to save it.'),
-                  _TermsSection('5. Intellectual Property',
-                      'The DocForge application, including its design, code, and branding, is owned by DocForge Technologies and protected by applicable intellectual property laws.'),
-                  _TermsSection('6. Limitation of Liability',
-                      'DocForge provides OCR and conversion services on a best-effort basis. We do not guarantee 100% accuracy in text extraction and are not liable for errors in processed documents.'),
-                  _TermsSection('7. Termination',
-                      'We reserve the right to terminate or suspend accounts that violate these Terms. You may delete your account at any time from the Settings screen.'),
-                  _TermsSection('8. Changes to Terms',
-                      'We may update these Terms periodically. Continued use of the service after changes constitutes acceptance of the revised Terms.'),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Last updated: May 2025',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-                24, 8, 24, MediaQuery.paddingOf(context).bottom + 16),
-            child: FilledButton(
-              onPressed: () => Navigator.pop(ctx),
-              style: FilledButton.styleFrom(
-                minimumSize: const Size(double.infinity, 48),
-              ),
-              child: const Text('Got it'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TermsSection extends StatelessWidget {
-  final String title;
-  final String body;
-  const _TermsSection(this.title, this.body);
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title,
-              style: theme.textTheme.titleSmall?.copyWith(
-                color: AppColors.primary,
-              )),
-          const SizedBox(height: 6),
-          Text(body, style: theme.textTheme.bodySmall?.copyWith(height: 1.7)),
-        ],
       ),
     );
   }

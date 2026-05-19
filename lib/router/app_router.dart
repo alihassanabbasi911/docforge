@@ -1,9 +1,9 @@
 // lib/router/app_router.dart
-import 'package:docforge/auth_state.dart';
-import 'package:docforge/screens/auth/login_screen.dart';
-import 'package:docforge/screens/auth/register_screen.dart';
-import 'package:docforge/screens/auth/forgot_password_screen.dart';
-import 'package:docforge/screens/settings/delete_account_page.dart';
+import 'package:FlexScan/auth_state.dart';
+import 'package:FlexScan/screens/auth/forgot_password_screen.dart';
+import 'package:FlexScan/screens/auth/login_screen.dart';
+import 'package:FlexScan/screens/auth/register_screen.dart';
+import 'package:FlexScan/screens/settings/delete_account_page.dart';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
