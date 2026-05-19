@@ -1,3 +1,4 @@
+import 'package:FlexScan/providers/app_providers.dart';
 import 'package:FlexScan/providers/auth_providers.dart';
 import 'package:FlexScan/router/app_router.dart';
 
@@ -16,11 +17,15 @@ class _AuthStateScreenState extends ConsumerState<AuthStateScreen> {
   @override
   void initState() {
     super.initState();
-    ref.listenManual(authStateProvider, (prev, next) {
+    final persistence = ref.read(persistenceProvider);
+    ref.listen(authStateProvider, (prev, next) {
       next.when(
         data: (user) {
-          if (user != null) {
+          if (user != null && persistence) {
             context.go(AppRoutes.home);
+          } else if (user != null && !persistence) {
+            // TODO: Implement Persistence Storage for persistence variabl
+            context.go(AppRoutes.login);
           } else {
             context.go(AppRoutes.onboarding);
           }
@@ -31,15 +36,17 @@ class _AuthStateScreenState extends ConsumerState<AuthStateScreen> {
             SnackBar(content: Text(e.toString())),
           );
         },
-        loading: () {},
+        loading: () {
+          return const CircularProgressIndicator();
+        },
       );
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
+    return SizedBox(
+      child: Container(),
     );
   }
 }

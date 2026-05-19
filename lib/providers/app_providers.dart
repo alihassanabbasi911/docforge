@@ -398,3 +398,12 @@ class SortNotifier extends StateNotifier<(bool, bool, bool)> {
 
   void setSort((bool, bool, bool) option) => state = option;
 }
+
+final persistenceProvider =
+    StateNotifierProvider<UserPersistenceNotifier, bool>(
+        (ref) => UserPersistenceNotifier());
+
+class UserPersistenceNotifier extends StateNotifier<bool> {
+  UserPersistenceNotifier() : super(true);
+  void togglePersistence() => state = !state;
+}

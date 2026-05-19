@@ -124,6 +124,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
 
   void _socialRegister(String provider) async {
     HapticFeedback.lightImpact();
+    if (!_acceptedTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please accept the Terms of Service to continue'),
+        ),
+      );
+      return;
+    }
     if (provider == 'Google') {
       await ref.read(authProvider.notifier).signInWithGoogle();
       final state = ref.read(authProvider);
