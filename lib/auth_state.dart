@@ -18,7 +18,7 @@ class _AuthStateScreenState extends ConsumerState<AuthStateScreen> {
   void initState() {
     super.initState();
     final persistence = ref.read(persistenceProvider);
-    ref.listen(authStateProvider, (prev, next) {
+    ref.listenManual(authStateProvider, (prev, next) {
       next.when(
         data: (user) {
           if (user != null && persistence) {
@@ -36,9 +36,7 @@ class _AuthStateScreenState extends ConsumerState<AuthStateScreen> {
             SnackBar(content: Text(e.toString())),
           );
         },
-        loading: () {
-          return const CircularProgressIndicator();
-        },
+        loading: () {},
       );
     });
   }

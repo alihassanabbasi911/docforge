@@ -39,20 +39,20 @@ void main() async {
 
   runApp(
     const ProviderScope(
-      child: DocForgeApp(),
+      child: FlexScanApp(),
     ),
   );
 }
 
-class DocForgeApp extends ConsumerWidget {
-  const DocForgeApp({super.key});
+class FlexScanApp extends ConsumerWidget {
+  const FlexScanApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
 
     return MaterialApp.router(
-      title: 'DocForge',
+      title: 'FlexScan',
       debugShowCheckedModeBanner: false,
 
       // Theme

@@ -23,7 +23,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
 
-  bool _rememberMe = false;
   bool _isLoading = false;
 
   late final AnimationController _animCtrl;
@@ -212,36 +211,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               // Remember me + Forgot password
                               Row(
                                 children: [
-                                  // Remember me
-                                  GestureDetector(
-                                    onTap: () => setState(
-                                        () => _rememberMe = !_rememberMe),
-                                    behavior: HitTestBehavior.opaque,
-                                    child: Row(
-                                      children: [
-                                        SizedBox(
-                                          width: 22,
-                                          height: 22,
-                                          child: Checkbox(
-                                            value: _rememberMe,
-                                            onChanged: (v) => setState(
-                                                () => _rememberMe = v ?? false),
-                                            materialTapTargetSize:
-                                                MaterialTapTargetSize
-                                                    .shrinkWrap,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          'Remember me',
-                                          style: theme.textTheme.bodySmall
-                                              ?.copyWith(
-                                                  fontWeight: FontWeight.w500),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-
                                   const Spacer(),
 
                                   // Forgot password

@@ -1,11 +1,8 @@
-// lib/screens/home/home_screen.dart
 import 'package:FlexScan/features/utils/share_file.dart';
 import 'package:FlexScan/providers/auth_providers.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../models/document.dart';
 import '../../providers/app_providers.dart';
 import '../../router/app_router.dart';
 import '../../theme/app_theme.dart';
@@ -394,7 +391,7 @@ class _TipCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Hold the camera still for 2s for automatic capture in good lighting.',
+                  'Hold the camera in good lighting to capture clear text for better extraction results.',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: Colors.white.withOpacity(0.8),
                     height: 1.5,

@@ -1,6 +1,5 @@
 // lib/screens/auth/register_screen.dart
-import 'package:FlexScan/features/utils/open_links.dart';
-import 'package:FlexScan/links/app_links.dart';
+
 import 'package:FlexScan/providers/auth_providers.dart';
 import 'package:FlexScan/router/app_router.dart';
 
@@ -27,7 +26,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
   final _passwordCtrl = TextEditingController();
   final _confirmCtrl = TextEditingController();
 
-  bool _acceptedTerms = false;
   bool _isLoading = false;
   bool _obscureConfirm = true;
 
@@ -65,14 +63,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
   Future<void> _submit() async {
     FocusScope.of(context).unfocus();
     if (!_formKey.currentState!.validate()) return;
-    if (!_acceptedTerms) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please accept the Terms of Service to continue'),
-        ),
-      );
-      return;
-    }
 
     setState(() => _isLoading = true);
     HapticFeedback.lightImpact();
@@ -124,14 +114,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
 
   void _socialRegister(String provider) async {
     HapticFeedback.lightImpact();
-    if (!_acceptedTerms) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please accept the Terms of Service to continue'),
-        ),
-      );
-      return;
-    }
+
     if (provider == 'Google') {
       await ref.read(authProvider.notifier).signInWithGoogle();
       final state = ref.read(authProvider);
@@ -216,7 +199,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
                             style: theme.textTheme.headlineMedium),
                         const SizedBox(height: 6),
                         Text(
-                          'Join DocForge — it only takes a minute',
+                          'Join FlexScan — it only takes a minute',
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,
                           ),
@@ -347,22 +330,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
                                     () => _obscureConfirm = !_obscureConfirm),
                               ),
 
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 24),
 
                               // Terms checkbox
-                              _TermsCheckbox(
-                                accepted: _acceptedTerms,
-                                onChanged: (v) =>
-                                    setState(() => _acceptedTerms = v),
-                                onTermsTap: () async {
-                                  await openLink(AppLinks.terms);
-                                },
-                                onPrivacyTap: () async {
-                                  await openLink(AppLinks.privacy);
-                                },
-                              ),
-
-                              const SizedBox(height: 24),
 
                               // Create account button
                               _SubmitButton(
@@ -491,102 +461,6 @@ class _ConfirmPasswordFieldState extends State<_ConfirmPasswordField> {
 // ─────────────────────────────────────────────
 // Terms & Privacy Checkbox
 // ─────────────────────────────────────────────
-class _TermsCheckbox extends StatelessWidget {
-  final bool accepted;
-  final ValueChanged<bool> onChanged;
-  final VoidCallback onTermsTap;
-  final VoidCallback onPrivacyTap;
-
-  const _TermsCheckbox({
-    required this.accepted,
-    required this.onChanged,
-    required this.onTermsTap,
-    required this.onPrivacyTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    return GestureDetector(
-      onTap: () => onChanged(!accepted),
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: accepted
-              ? (isDark ? const Color(0xFF1E1B4B) : AppColors.primaryContainer)
-              : (isDark ? AppColors.darkSurface2 : AppColors.neutral50),
-          borderRadius: AppRadius.borderMd,
-          border: Border.all(
-            color: accepted
-                ? AppColors.primary.withOpacity(0.5)
-                : (isDark ? AppColors.darkSurface3 : AppColors.neutral200),
-            width: accepted ? 1.5 : 1,
-          ),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              width: 22,
-              height: 22,
-              child: Checkbox(
-                value: accepted,
-                onChanged: (v) => onChanged(v ?? false),
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: RichText(
-                text: TextSpan(
-                  style: theme.textTheme.bodySmall?.copyWith(height: 1.5),
-                  children: [
-                    const TextSpan(text: 'I agree to the '),
-                    WidgetSpan(
-                      child: GestureDetector(
-                        onTap: onTermsTap,
-                        child: Text(
-                          'Terms of Service',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.primary,
-                            fontWeight: FontWeight.w700,
-                            decoration: TextDecoration.underline,
-                            decorationColor: theme.colorScheme.primary,
-                            height: 1.5,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const TextSpan(text: ' and '),
-                    WidgetSpan(
-                      child: GestureDetector(
-                        onTap: onPrivacyTap,
-                        child: Text(
-                          'Privacy Policy',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.primary,
-                            fontWeight: FontWeight.w700,
-                            decoration: TextDecoration.underline,
-                            decorationColor: theme.colorScheme.primary,
-                            height: 1.5,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const TextSpan(text: '. Your data is safe with us.'),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 // ─────────────────────────────────────────────
 // Shared: animated submit button

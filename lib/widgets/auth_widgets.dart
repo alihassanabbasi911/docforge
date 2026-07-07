@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import '../theme/app_theme.dart';
 
 // ─────────────────────────────────────────────
-// DocForge Logo Mark
+// FlexScan Logo Mark
 // ─────────────────────────────────────────────
 class ForgeLogoMark extends StatelessWidget {
   final double size;
@@ -21,8 +21,8 @@ class ForgeLogoMark extends StatelessWidget {
         Container(
           width: size,
           height: size,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
               colors: [AppColors.primary, Color(0xFF7C3AED)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -39,7 +39,7 @@ class ForgeLogoMark extends StatelessWidget {
         if (showWordmark) ...[
           const SizedBox(height: 10),
           Text(
-            'DocForge',
+            'FlexScan',
             style: theme.textTheme.titleLarge?.copyWith(
               color: AppColors.primary,
               letterSpacing: -0.5,

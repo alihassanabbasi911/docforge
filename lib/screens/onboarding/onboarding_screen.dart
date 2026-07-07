@@ -1,4 +1,6 @@
 // lib/screens/onboarding/onboarding_screen.dart
+import 'package:FlexScan/features/utils/open_links.dart';
+import 'package:FlexScan/links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -16,27 +18,28 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final _pageController = PageController();
   int _currentPage = 0;
+  bool _acceptedTerms = false;
 
   static const _pages = [
     _OnboardingPage(
       tag: 'CAPTURE',
       title: 'Scan any\ndocument',
       subtitle:
-          'Point your camera at any paper, receipt, or contract — DocForge captures and processes it instantly.',
+          'Point your camera at any paper, receipt, or contract — FlexScan captures and processes it instantly.',
       features: [],
     ),
     _OnboardingPage(
       tag: 'EXTRACT',
       title: 'Extract text\nwith precision',
       subtitle:
-          'Industry-leading OCR engine accurately extracts text in multiple languages including English and Urdu.',
+          'Industry-leading OCR engine accurately extracts text in English',
       features: [],
     ),
     _OnboardingPage(
-      tag: 'CONVERT',
-      title: 'Export in any\nformat',
+      tag: 'PROCESS',
+      title: 'Process any\nformat',
       subtitle:
-          'Convert your documents to PDF, DOCX, or TXT and share them anywhere in seconds.',
+          'Process your documents in PDF, DOCX, or TXT and share the text anywhere in seconds.',
       features: [],
     ),
   ];
@@ -48,7 +51,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         curve: Curves.easeInOut,
       );
     } else {
-      context.go(AppRoutes.login);
+      if (_acceptedTerms) {
+        context.go(AppRoutes.login);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content:
+                Text('Please accept the terms and conditions to continue.'),
+          ),
+        );
+      }
     }
   }
 
@@ -90,7 +102,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'DocForge',
+                        'FlexScan',
                         style: theme.textTheme.titleMedium?.copyWith(
                           color: AppColors.primary,
                         ),
@@ -98,7 +110,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     ],
                   ),
                   TextButton(
-                    onPressed: () => context.go(AppRoutes.login),
+                    onPressed: () => _acceptedTerms
+                        ? context.go(AppRoutes.login)
+                        : ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  'Please accept the terms and conditions to continue.'),
+                            ),
+                          ),
                     child: const Text('Skip'),
                   ),
                 ],
@@ -144,6 +163,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     ),
                   ),
                   const SizedBox(height: 32),
+                  _TermsCheckbox(
+                    accepted: _acceptedTerms,
+                    onChanged: (v) => setState(() => _acceptedTerms = v),
+                    onTermsTap: () async {
+                      await openLink(AppLinks.terms);
+                    },
+                    onPrivacyTap: () async {
+                      await openLink(AppLinks.privacy);
+                    },
+                  ),
+                  const SizedBox(height: 16),
                   FilledButton(
                     onPressed: _next,
                     style: FilledButton.styleFrom(
@@ -209,8 +239,8 @@ class _OnboardingPageView extends StatelessWidget {
             'Auto edge detection & deskew', AppColors.primary),
         _FeatureItem(Icons.flash_on_rounded, 'Smart flash control',
             'Optimized for all light conditions', Color(0xFFF59E0B)),
-        _FeatureItem(Icons.crop_free_rounded, 'Auto crop & align',
-            'Precise document boundaries', Color(0xFF10B981)),
+        // _FeatureItem(Icons.crop_free_rounded, 'Auto crop & align',
+        //     'Precise document boundaries', Color(0xFF10B981)),
       ],
     ),
     _IllustrationData(
@@ -219,10 +249,16 @@ class _OnboardingPageView extends StatelessWidget {
       icon: Icons.text_fields_rounded,
       iconColor: Color(0xFF059669),
       features: [
-        _FeatureItem(Icons.translate_rounded, 'Multi-language OCR',
-            'English, Urdu, Arabic & more', Color(0xFF059669)),
-        _FeatureItem(Icons.auto_fix_high_rounded, 'Smart correction',
-            'Auto-fix common OCR errors', AppColors.primary),
+        _FeatureItem(
+            Icons.translate_rounded,
+            'Multi-language OCR (Coming Soon)',
+            'English, Urdu, Arabic & more ',
+            Color(0xFF059669)),
+        _FeatureItem(
+            Icons.auto_fix_high_rounded,
+            'Smart correction by AI (Coming Soon)',
+            'Auto-fix common OCR errors',
+            AppColors.primary),
         _FeatureItem(Icons.format_align_left_rounded, 'Layout preservation',
             'Maintains document structure', Color(0xFFF59E0B)),
       ],
@@ -233,12 +269,12 @@ class _OnboardingPageView extends StatelessWidget {
       icon: Icons.swap_horiz_rounded,
       iconColor: Color(0xFFF59E0B),
       features: [
-        _FeatureItem(Icons.picture_as_pdf_rounded, 'PDF export',
+        _FeatureItem(Icons.picture_as_pdf_rounded, 'PDF processing',
             'Searchable, compressed PDFs', AppColors.pdfColor),
         _FeatureItem(Icons.article_rounded, 'Word documents',
             'Editable DOCX with formatting', AppColors.docxColor),
         _FeatureItem(Icons.share_rounded, 'Instant sharing',
-            'Share via any app or cloud', AppColors.primary),
+            'Share text via any app or cloud', AppColors.primary),
       ],
     ),
   ];
@@ -370,4 +406,101 @@ class _FeatureItem {
   final Color color;
 
   const _FeatureItem(this.icon, this.title, this.description, this.color);
+}
+
+class _TermsCheckbox extends StatelessWidget {
+  final bool accepted;
+  final ValueChanged<bool> onChanged;
+  final VoidCallback onTermsTap;
+  final VoidCallback onPrivacyTap;
+
+  const _TermsCheckbox({
+    required this.accepted,
+    required this.onChanged,
+    required this.onTermsTap,
+    required this.onPrivacyTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return GestureDetector(
+      onTap: () => onChanged(!accepted),
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: accepted
+              ? (isDark ? const Color(0xFF1E1B4B) : AppColors.primaryContainer)
+              : (isDark ? AppColors.darkSurface2 : AppColors.neutral50),
+          borderRadius: AppRadius.borderMd,
+          border: Border.all(
+            color: accepted
+                ? AppColors.primary.withOpacity(0.5)
+                : (isDark ? AppColors.darkSurface3 : AppColors.neutral200),
+            width: accepted ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 22,
+              height: 22,
+              child: Checkbox(
+                value: accepted,
+                onChanged: (v) => onChanged(v ?? false),
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: RichText(
+                text: TextSpan(
+                  style: theme.textTheme.bodySmall?.copyWith(height: 1.5),
+                  children: [
+                    const TextSpan(text: 'I agree to the '),
+                    WidgetSpan(
+                      child: GestureDetector(
+                        onTap: onTermsTap,
+                        child: Text(
+                          'Terms of Service',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.w700,
+                            decoration: TextDecoration.underline,
+                            decorationColor: theme.colorScheme.primary,
+                            height: 1.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const TextSpan(text: ' and '),
+                    WidgetSpan(
+                      child: GestureDetector(
+                        onTap: onPrivacyTap,
+                        child: Text(
+                          'Privacy Policy',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.w700,
+                            decoration: TextDecoration.underline,
+                            decorationColor: theme.colorScheme.primary,
+                            height: 1.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const TextSpan(text: '. Your data is safe with us.'),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

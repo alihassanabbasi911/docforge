@@ -74,7 +74,6 @@ class AuthRepository {
   Future<void> signOut() async {
     try {
       await _firebaseAuth.signOut();
-      await _googleSignIn.signOut();
     } catch (e) {
       throw Exception(e);
     }
@@ -82,5 +81,13 @@ class AuthRepository {
 
   Stream<User?> authStateStream() {
     return _firebaseAuth.authStateChanges();
+  }
+
+  Future<void> resetPassword({required String email}) async {
+    try {
+      await _firebaseAuth.sendPasswordResetEmail(email: email);
+    } catch (e) {
+      throw Exception(e);
+    }
   }
 }

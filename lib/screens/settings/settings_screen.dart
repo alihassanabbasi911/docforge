@@ -48,7 +48,6 @@ Describe your issue or feedback below:
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
     final themeMode = ref.watch(themeModeProvider);
     final documentCount = ref.watch(documentsProvider).length;
 
@@ -320,7 +319,7 @@ Describe your issue or feedback below:
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'DocForge',
+                    'FlexScan',
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: AppColors.primary,
                     ),
