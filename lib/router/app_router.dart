@@ -1,9 +1,9 @@
 // lib/router/app_router.dart
-import 'package:FlexScan/auth_state.dart';
-import 'package:FlexScan/screens/auth/forgot_password_screen.dart';
-import 'package:FlexScan/screens/auth/login_screen.dart';
-import 'package:FlexScan/screens/auth/register_screen.dart';
-import 'package:FlexScan/screens/settings/delete_account_page.dart';
+import 'package:flex_scan/auth_state.dart';
+import 'package:flex_scan/screens/auth/forgot_password_screen.dart';
+import 'package:flex_scan/screens/auth/login_screen.dart';
+import 'package:flex_scan/screens/auth/register_screen.dart';
+import 'package:flex_scan/screens/settings/delete_account_page.dart';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';

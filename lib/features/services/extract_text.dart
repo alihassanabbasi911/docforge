@@ -1,7 +1,5 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'dart:ui';
-
 import 'package:doc_text_extractor/doc_text_extractor.dart';
 import 'package:flutter_pdf_text/flutter_pdf_text.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
@@ -18,7 +16,7 @@ class ExtractText {
       if (!_isTextUsable(text)) {
         text = await extractTextFromScannedPdf(filePath);
       }
-      print(text);
+
       return text;
     } catch (e) {
       rethrow;
@@ -27,12 +25,9 @@ class ExtractText {
 
   Future<String?> extractDOCText(String path) async {
     final extractor = TextExtractor();
-    final result;
+    final ({Uint8List byte, String filename, String text}) result;
     try {
-      final dir = await getTemporaryDirectory();
-
       result = await extractor.extractText(path, isUrl: false);
-      print(result.text);
     } catch (e) {
       rethrow;
     }
@@ -71,34 +66,23 @@ class ExtractText {
 
   Future<String> extractTextFromScannedPdf(String path) async {
     final buffer = StringBuffer();
-    final doc;
+    final PdfDocument doc;
 
     try {
       doc = await PdfDocument.openFile(path);
-      for (int i = 0; i < doc.pageCount; i++) {
+      for (int i = 0; i < doc.pages.length; i++) {
         try {
-          final page = await doc.getPage(i + 1);
+          final page = doc.pages[i];
 
-          final pageImage = await page.render(
-            width: page.width * 2,
-            height: page.height * 2,
-          );
+          final text = await page.loadStructuredText();
 
-          final text = await extractTextFromImageBytes(
-            pageImage.bytes,
-            pageImage.width,
-            pageImage.height,
-          );
-
-          buffer.writeln(text);
+          buffer.writeln(text.fullText);
           buffer.writeln('\n');
-
-          await page.close();
         } catch (pageError) {
-          print("Error processing page ${i + 1}: $pageError");
+          rethrow;
         }
       }
-      await doc.close();
+      await doc.dispose();
     } catch (e) {
       rethrow;
     }

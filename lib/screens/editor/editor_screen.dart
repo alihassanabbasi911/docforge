@@ -1,4 +1,3 @@
-// lib/screens/editor/editor_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,7 +16,6 @@ class EditorScreen extends ConsumerStatefulWidget {
 class _EditorScreenState extends ConsumerState<EditorScreen> {
   late TextEditingController _textController;
   final _focusNode = FocusNode();
-  final bool _isEditing = false;
   bool _isBold = false;
   bool _isItalic = false;
   String _documentName = 'Extracted Text';
@@ -413,13 +411,11 @@ class _IconToolbarButton extends StatelessWidget {
   final IconData icon;
   final String tooltip;
   final VoidCallback onTap;
-  final Color? color;
 
   const _IconToolbarButton({
     required this.icon,
     required this.tooltip,
     required this.onTap,
-    this.color,
   });
 
   @override
@@ -437,7 +433,7 @@ class _IconToolbarButton extends StatelessWidget {
           child: Icon(
             icon,
             size: 18,
-            color: color ?? Theme.of(context).colorScheme.onSurfaceVariant,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ),
@@ -470,35 +466,35 @@ class _StatPill extends StatelessWidget {
   }
 }
 
-class _ClearDialog extends StatelessWidget {
-  final VoidCallback onConfirm;
+// class _ClearDialog extends StatelessWidget {
+//   final VoidCallback onConfirm;
 
-  const _ClearDialog({required this.onConfirm});
+//   const _ClearDialog({required this.onConfirm});
 
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      shape: const RoundedRectangleBorder(borderRadius: AppRadius.borderLg),
-      title: const Text('Clear text?'),
-      content: const Text(
-          'This will remove all extracted text. This action cannot be undone.'),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          onPressed: () {
-            onConfirm();
-            Navigator.pop(context);
-          },
-          style: FilledButton.styleFrom(backgroundColor: AppColors.error),
-          child: const Text('Clear'),
-        ),
-      ],
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return AlertDialog(
+//       shape: const RoundedRectangleBorder(borderRadius: AppRadius.borderLg),
+//       title: const Text('Clear text?'),
+//       content: const Text(
+//           'This will remove all extracted text. This action cannot be undone.'),
+//       actions: [
+//         TextButton(
+//           onPressed: () => Navigator.pop(context),
+//           child: const Text('Cancel'),
+//         ),
+//         FilledButton(
+//           onPressed: () {
+//             onConfirm();
+//             Navigator.pop(context);
+//           },
+//           style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+//           child: const Text('Clear'),
+//         ),
+//       ],
+//     );
+//   }
+// }
 
 class _TranslateSheet extends StatelessWidget {
   const _TranslateSheet();

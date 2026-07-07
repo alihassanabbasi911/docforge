@@ -1,4 +1,4 @@
-import 'package:FlexScan/providers/auth_providers.dart';
+import 'package:flex_scan/providers/auth_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -195,7 +195,7 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage>
                   'Enter your password to confirm. This action is permanent '
                   'and cannot be reversed.',
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurface.withOpacity(0.6),
+                    color: colorScheme.onSurface.withAlpha(150),
                     height: 1.5,
                   ),
                 ),
@@ -253,8 +253,8 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage>
                           borderRadius: BorderRadius.circular(12),
                         ),
                         filled: true,
-                        fillColor: colorScheme.surfaceContainerHighest
-                            .withOpacity(0.4),
+                        fillColor:
+                            colorScheme.surfaceContainerHighest.withAlpha(100),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -348,7 +348,7 @@ class _DangerBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFFFEBEE),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE53935).withOpacity(0.3)),
+        border: Border.all(color: const Color(0xFFE53935).withAlpha(77)),
       ),
       child: const Row(
         mainAxisSize: MainAxisSize.min,
@@ -381,7 +381,7 @@ class _WarningCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFFFF8E1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFFFB300).withOpacity(0.4)),
+        border: Border.all(color: const Color(0xFFFFB300).withAlpha(100)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

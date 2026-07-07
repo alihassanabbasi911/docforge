@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:FlexScan/repositories/auth_repository.dart';
-import 'package:FlexScan/repositories/user_repository.dart';
+import 'package:flex_scan/repositories/auth_repository.dart';
+import 'package:flex_scan/repositories/user_repository.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

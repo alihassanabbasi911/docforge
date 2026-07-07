@@ -298,8 +298,8 @@ class QuickActionCard extends StatelessWidget {
               height: 44,
               decoration: BoxDecoration(
                 color: isPrimary
-                    ? Colors.white.withOpacity(0.2)
-                    : color.withOpacity(0.12),
+                    ? Colors.white.withAlpha(51)
+                    : color.withAlpha(31),
                 borderRadius: AppRadius.borderMd,
               ),
               child: Icon(
@@ -321,7 +321,7 @@ class QuickActionCard extends StatelessWidget {
               subtitle,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: isPrimary
-                    ? Colors.white.withOpacity(0.75)
+                    ? Colors.white.withAlpha(192)
                     : theme.colorScheme.onSurfaceVariant,
               ),
             ),
@@ -570,7 +570,7 @@ class OnboardingFeatureRow extends StatelessWidget {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.12),
+            color: color.withAlpha(31),
             borderRadius: AppRadius.borderMd,
           ),
           child: Icon(icon, color: color, size: 24),
@@ -738,7 +738,7 @@ class SettingsTile extends StatelessWidget {
               width: 38,
               height: 38,
               decoration: BoxDecoration(
-                color: color.withOpacity(isDark ? 0.15 : 0.1),
+                color: color.withAlpha(isDark ? 38 : 26),
                 borderRadius: AppRadius.borderSm,
               ),
               child: Icon(icon, color: color, size: 20),

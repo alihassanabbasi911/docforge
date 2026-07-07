@@ -320,10 +320,10 @@ class _FormatDetailsCard extends StatelessWidget {
       duration: const Duration(milliseconds: 200),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: format.bgColor.withOpacity(isDark ? 0.15 : 1.0),
+        color: format.bgColor.withAlpha(isDark ? 40 : 20),
         borderRadius: AppRadius.borderMd,
         border: Border.all(
-          color: format.color.withOpacity(0.3),
+          color: format.color.withAlpha(120),
         ),
       ),
       child: Column(

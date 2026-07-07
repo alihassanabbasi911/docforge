@@ -1,5 +1,5 @@
-import 'package:FlexScan/providers/app_providers.dart';
-import 'package:FlexScan/router/app_router.dart';
+import 'package:flex_scan/providers/app_providers.dart';
+import 'package:flex_scan/router/app_router.dart';
 import 'package:camera/camera.dart';
 
 import 'package:flutter/material.dart';
@@ -76,13 +76,17 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
                 );
                 return GestureDetector(
                   onTap: () async {
+                    final scaffold = ScaffoldMessenger.of(context);
                     final path = await captureImage();
-                    if (!mounted) return;
+                    if (!context.mounted) return;
                     try {
-                      ref.read(extractTextProvider.notifier).extractText(path);
+                      await ref
+                          .read(extractTextProvider.notifier)
+                          .extractText(path);
+                      if (!context.mounted) return;
                       context.push(AppRoutes.editor);
                     } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
+                      scaffold.showSnackBar(
                         const SnackBar(
                             content: Text(
                                 'Failed to extract text from image. Please try again.')),

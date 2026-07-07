@@ -1,4 +1,4 @@
-import 'package:FlexScan/models/document.dart';
+import 'package:flex_scan/models/document.dart';
 
 import 'package:hive/hive.dart';
 

@@ -1,6 +1,6 @@
-import 'package:FlexScan/providers/app_providers.dart';
-import 'package:FlexScan/providers/auth_providers.dart';
-import 'package:FlexScan/router/app_router.dart';
+import 'package:flex_scan/providers/app_providers.dart';
+import 'package:flex_scan/providers/auth_providers.dart';
+import 'package:flex_scan/router/app_router.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,7 +24,6 @@ class _AuthStateScreenState extends ConsumerState<AuthStateScreen> {
           if (user != null && persistence) {
             context.go(AppRoutes.home);
           } else if (user != null && !persistence) {
-            // TODO: Implement Persistence Storage for persistence variabl
             context.go(AppRoutes.login);
           } else {
             context.go(AppRoutes.onboarding);

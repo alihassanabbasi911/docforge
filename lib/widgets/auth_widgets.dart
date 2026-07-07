@@ -109,7 +109,6 @@ class _ForgeTextFieldState extends State<ForgeTextField> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     return TextFormField(
       controller: widget.controller,
@@ -537,7 +536,7 @@ class AuthBackground extends StatelessWidget {
             height: 200,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.primary.withOpacity(isDark ? 0.08 : 0.06),
+              color: AppColors.primary.withAlpha(isDark ? 21 : 16),
             ),
           ),
         ),
@@ -549,7 +548,7 @@ class AuthBackground extends StatelessWidget {
             height: 80,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFF7C3AED).withOpacity(isDark ? 0.1 : 0.07),
+              color: const Color(0xFF7C3AED).withAlpha(isDark ? 26 : 18),
             ),
           ),
         ),
@@ -561,7 +560,7 @@ class AuthBackground extends StatelessWidget {
             height: 160,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.primary.withOpacity(isDark ? 0.05 : 0.04),
+              color: AppColors.primary.withAlpha(isDark ? 13 : 10),
             ),
           ),
         ),
@@ -599,8 +598,12 @@ class _OtpInputState extends State<OtpInput> {
 
   @override
   void dispose() {
-    for (final c in _controllers) c.dispose();
-    for (final f in _focusNodes) f.dispose();
+    for (final c in _controllers) {
+      c.dispose();
+    }
+    for (final f in _focusNodes) {
+      f.dispose();
+    }
     super.dispose();
   }
 
@@ -663,10 +666,9 @@ class _OtpInputState extends State<OtpInput> {
                   color: isDark ? AppColors.darkSurface3 : AppColors.neutral200,
                 ),
               ),
-              focusedBorder: OutlineInputBorder(
+              focusedBorder: const OutlineInputBorder(
                 borderRadius: AppRadius.borderMd,
-                borderSide:
-                    const BorderSide(color: AppColors.primary, width: 2),
+                borderSide: BorderSide(color: AppColors.primary, width: 2),
               ),
             ),
           ),

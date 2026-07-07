@@ -1,6 +1,6 @@
 // lib/screens/onboarding/onboarding_screen.dart
-import 'package:FlexScan/features/utils/open_links.dart';
-import 'package:FlexScan/links/app_links.dart';
+import 'package:flex_scan/features/utils/open_links.dart';
+import 'package:flex_scan/links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -438,7 +438,7 @@ class _TermsCheckbox extends StatelessWidget {
           borderRadius: AppRadius.borderMd,
           border: Border.all(
             color: accepted
-                ? AppColors.primary.withOpacity(0.5)
+                ? AppColors.primary.withAlpha(120)
                 : (isDark ? AppColors.darkSurface3 : AppColors.neutral200),
             width: accepted ? 1.5 : 1,
           ),

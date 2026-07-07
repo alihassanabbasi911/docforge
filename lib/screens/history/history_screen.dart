@@ -1,6 +1,6 @@
 // lib/screens/history/history_screen.dart
 
-import 'package:FlexScan/features/utils/share_file.dart';
+import 'package:flex_scan/features/utils/share_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -318,9 +318,11 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           ),
           FilledButton(
             onPressed: () async {
+              context.pop(); // Close dialog
+              final scaffold = ScaffoldMessenger.of(context);
               await ref.read(documentsProvider.notifier).remove(doc.id);
-              Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(
+
+              scaffold.showSnackBar(
                 SnackBar(content: Text('${doc.name} deleted')),
               );
             },

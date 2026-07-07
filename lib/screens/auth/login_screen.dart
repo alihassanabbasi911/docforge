@@ -1,6 +1,6 @@
 // lib/screens/auth/login_screen.dart
-import 'package:FlexScan/providers/auth_providers.dart';
-import 'package:FlexScan/router/app_router.dart';
+import 'package:flex_scan/providers/auth_providers.dart';
+import 'package:flex_scan/router/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -321,10 +321,10 @@ class _SubmitButton extends StatelessWidget {
         minimumSize: const Size(double.infinity, 54),
         shape: const RoundedRectangleBorder(borderRadius: AppRadius.borderMd),
         backgroundColor: AppColors.primary,
-        disabledBackgroundColor: AppColors.primary.withOpacity(0.6),
+        disabledBackgroundColor: AppColors.primary.withAlpha(120),
         elevation: 0,
       ).copyWith(
-        overlayColor: WidgetStateProperty.all(Colors.white.withOpacity(0.12)),
+        overlayColor: WidgetStateProperty.all(Colors.white.withAlpha(30)),
       ),
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 220),

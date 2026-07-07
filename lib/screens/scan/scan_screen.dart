@@ -1,6 +1,6 @@
 // lib/screens/scan/scan_screen.dart
 
-import 'package:FlexScan/screens/scan/camera_screen.dart';
+import 'package:flex_scan/screens/scan/camera_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,8 +18,8 @@ class ScanScreen extends ConsumerStatefulWidget {
 
 class _ScanScreenState extends ConsumerState<ScanScreen>
     with SingleTickerProviderStateMixin {
-  bool _flashOn = false;
-  bool _gridOn = false;
+  bool flashOn = false;
+  bool gridOn = false;
   late AnimationController _scanLineController;
   late Animation<double> _scanLineAnim;
 
@@ -47,7 +47,6 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    final theme = Theme.of(context);
 
     ref.listen(extractTextProvider, (prev, next) {
       next.whenOrNull(
@@ -112,7 +111,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
                 ),
 
                 // Grid overlay (optional)
-                if (_gridOn) _CameraGrid(),
+                if (gridOn) _CameraGrid(),
               ],
             ),
           ),
@@ -249,7 +248,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
                       width: 52,
                       height: 52,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
+                        color: Colors.white.withAlpha(38),
                         borderRadius: AppRadius.borderMd,
                         border: Border.all(
                           color: Colors.white24,
@@ -303,6 +302,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     final path = await ref.read(docReaderProvider.notifier).readImage();
     if (path != null) {
       await ref.read(extractTextProvider.notifier).extractText(path);
+      if (!mounted) return;
       context.push(AppRoutes.editor);
     }
   }
@@ -311,20 +311,21 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     final path = await ref.read(docReaderProvider.notifier).readDocument();
     if (path != null) {
       await ref.read(extractTextProvider.notifier).extractText(path);
+      if (!mounted) return;
       context.push(AppRoutes.editor);
     }
   }
 
-  void _showScanOptions(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: const Color(0xFF1E293B),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: AppRadius.xl),
-      ),
-      builder: (ctx) => const _ScanOptionsSheet(),
-    );
-  }
+  // void _showScanOptions(BuildContext context) {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     backgroundColor: const Color(0xFF1E293B),
+  //     shape: const RoundedRectangleBorder(
+  //       borderRadius: BorderRadius.vertical(top: AppRadius.xl),
+  //     ),
+  //     builder: (ctx) => const _ScanOptionsSheet(),
+  //   );
+  // }
 }
 
 class _DocumentFrame extends StatelessWidget {
@@ -540,7 +541,7 @@ class _ControlButton extends StatelessWidget {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.15),
+          color: Colors.white.withAlpha(38),
           shape: BoxShape.circle,
         ),
         child: Icon(icon, color: Colors.white, size: 20),
@@ -571,8 +572,8 @@ class _SideControl extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
           color: active
-              ? AppColors.primary.withOpacity(0.7)
-              : Colors.white.withOpacity(0.12),
+              ? AppColors.primary.withAlpha(179)
+              : Colors.white.withAlpha(30),
           borderRadius: AppRadius.borderMd,
         ),
         child: Column(
@@ -608,7 +609,7 @@ class _GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withOpacity(0.15)
+      ..color = Colors.white.withAlpha(38)
       ..strokeWidth = 0.5;
     // 3x3 grid
     for (int i = 1; i < 3; i++) {
@@ -623,107 +624,107 @@ class _GridPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-class _ScanOptionsSheet extends StatelessWidget {
-  const _ScanOptionsSheet();
+// class _ScanOptionsSheet extends StatelessWidget {
+//   const _ScanOptionsSheet();
 
-  @override
-  Widget build(BuildContext context) {
-    const textStyle = TextStyle(color: Colors.white70, fontSize: 14);
-    const titleStyle = TextStyle(
-      color: Colors.white,
-      fontSize: 16,
-      fontWeight: FontWeight.w600,
-    );
+//   @override
+//   Widget build(BuildContext context) {
+//     const textStyle = TextStyle(color: Colors.white70, fontSize: 14);
+//     const titleStyle = TextStyle(
+//       color: Colors.white,
+//       fontSize: 16,
+//       fontWeight: FontWeight.w600,
+//     );
 
-    return const Padding(
-      padding: EdgeInsets.fromLTRB(24, 20, 24, 40),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: SizedBox(
-              width: 36,
-              height: 4,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.all(Radius.circular(2)),
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: 20),
-          Text('Scan Options', style: titleStyle),
-          SizedBox(height: 20),
-          _OptionTile(
-              icon: Icons.auto_fix_high_rounded,
-              label: 'Auto enhance',
-              subtitle: 'Sharpen & improve contrast'),
-          _OptionTile(
-              icon: Icons.crop_rotate_rounded,
-              label: 'Auto deskew',
-              subtitle: 'Correct document angle'),
-          _OptionTile(
-              icon: Icons.color_lens_rounded,
-              label: 'Color mode',
-              subtitle: 'Original / Grayscale / B&W'),
-          _OptionTile(
-              icon: Icons.layers_rounded,
-              label: 'Multi-page scan',
-              subtitle: 'Combine into single document'),
-        ],
-      ),
-    );
-  }
-}
+//     return const Padding(
+//       padding: EdgeInsets.fromLTRB(24, 20, 24, 40),
+//       child: Column(
+//         mainAxisSize: MainAxisSize.min,
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Center(
+//             child: SizedBox(
+//               width: 36,
+//               height: 4,
+//               child: DecoratedBox(
+//                 decoration: BoxDecoration(
+//                   color: Colors.white24,
+//                   borderRadius: BorderRadius.all(Radius.circular(2)),
+//                 ),
+//               ),
+//             ),
+//           ),
+//           SizedBox(height: 20),
+//           Text('Scan Options', style: titleStyle),
+//           SizedBox(height: 20),
+//           _OptionTile(
+//               icon: Icons.auto_fix_high_rounded,
+//               label: 'Auto enhance',
+//               subtitle: 'Sharpen & improve contrast'),
+//           _OptionTile(
+//               icon: Icons.crop_rotate_rounded,
+//               label: 'Auto deskew',
+//               subtitle: 'Correct document angle'),
+//           _OptionTile(
+//               icon: Icons.color_lens_rounded,
+//               label: 'Color mode',
+//               subtitle: 'Original / Grayscale / B&W'),
+//           _OptionTile(
+//               icon: Icons.layers_rounded,
+//               label: 'Multi-page scan',
+//               subtitle: 'Combine into single document'),
+//         ],
+//       ),
+//     );
+//   }
+// }
 
-class _OptionTile extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String subtitle;
+// class _OptionTile extends StatelessWidget {
+//   final IconData icon;
+//   final String label;
+//   final String subtitle;
 
-  const _OptionTile(
-      {required this.icon, required this.label, required this.subtitle});
+//   const _OptionTile(
+//       {required this.icon, required this.label, required this.subtitle});
 
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
-              borderRadius: AppRadius.borderSm,
-            ),
-            child: Icon(icon, color: Colors.white70, size: 20),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label,
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600)),
-                Text(subtitle,
-                    style:
-                        const TextStyle(color: Colors.white54, fontSize: 12)),
-              ],
-            ),
-          ),
-          Switch(
-            value: false,
-            onChanged: (_) {},
-            activeThumbColor: AppColors.primaryLight,
-          ),
-        ],
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Padding(
+//       padding: const EdgeInsets.symmetric(vertical: 12),
+//       child: Row(
+//         children: [
+//           Container(
+//             width: 40,
+//             height: 40,
+//             decoration: BoxDecoration(
+//               color: Colors.white.withOpacity(0.1),
+//               borderRadius: AppRadius.borderSm,
+//             ),
+//             child: Icon(icon, color: Colors.white70, size: 20),
+//           ),
+//           const SizedBox(width: 14),
+//           Expanded(
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 Text(label,
+//                     style: const TextStyle(
+//                         color: Colors.white,
+//                         fontSize: 14,
+//                         fontWeight: FontWeight.w600)),
+//                 Text(subtitle,
+//                     style:
+//                         const TextStyle(color: Colors.white54, fontSize: 12)),
+//               ],
+//             ),
+//           ),
+//           Switch(
+//             value: false,
+//             onChanged: (_) {},
+//             activeThumbColor: AppColors.primaryLight,
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }

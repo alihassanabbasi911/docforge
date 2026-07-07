@@ -1,5 +1,5 @@
-import 'package:FlexScan/features/utils/share_file.dart';
-import 'package:FlexScan/providers/auth_providers.dart';
+import 'package:flex_scan/features/utils/share_file.dart';
+import 'package:flex_scan/providers/auth_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -169,6 +169,7 @@ class HomeScreen extends ConsumerWidget {
                           subtitle: 'From files',
                           color: const Color(0xFF059669),
                           onTap: () async {
+                            final scaffold = ScaffoldMessenger.of(context);
                             final path = await ref
                                 .read(docReaderProvider.notifier)
                                 .readDocument();
@@ -177,7 +178,7 @@ class HomeScreen extends ConsumerWidget {
                                   .read(extractTextProvider.notifier)
                                   .extractText(path);
                             } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
+                              scaffold.showSnackBar(
                                 const SnackBar(
                                   content: Text('No file selected'),
                                   behavior: SnackBarBehavior.floating,
@@ -197,13 +198,14 @@ class HomeScreen extends ConsumerWidget {
                       Expanded(
                         child: Consumer(
                           builder: (context, ref, child) {
-                            final state = ref.watch(extractTextProvider);
+                            ref.watch(extractTextProvider);
                             return QuickActionCard(
                               icon: Icons.image_rounded,
                               label: 'Gallery',
                               subtitle: 'Pick image',
                               color: const Color(0xFFF59E0B),
                               onTap: () async {
+                                final scaffold = ScaffoldMessenger.of(context);
                                 final path = await ref
                                     .read(docReaderProvider.notifier)
                                     .readImage();
@@ -212,7 +214,7 @@ class HomeScreen extends ConsumerWidget {
                                       .read(extractTextProvider.notifier)
                                       .extractText(path);
                                 } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
+                                  scaffold.showSnackBar(
                                     const SnackBar(
                                       content: Text('No image selected'),
                                       behavior: SnackBarBehavior.floating,
@@ -368,7 +370,7 @@ class _TipCard extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withAlpha(51),
               borderRadius: AppRadius.borderMd,
             ),
             child: const Icon(
@@ -393,7 +395,7 @@ class _TipCard extends StatelessWidget {
                 Text(
                   'Hold the camera in good lighting to capture clear text for better extraction results.',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withAlpha(204),
                     height: 1.5,
                   ),
                 ),

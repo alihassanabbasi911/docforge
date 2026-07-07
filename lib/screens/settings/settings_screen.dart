@@ -1,12 +1,10 @@
 // lib/screens/settings/settings_screen.dart
-import 'dart:ui';
-
-import 'package:FlexScan/features/utils/cache_clearer.dart';
-import 'package:FlexScan/features/utils/open_links.dart';
-import 'package:FlexScan/links/app_links.dart';
-import 'package:FlexScan/main.dart';
-import 'package:FlexScan/providers/auth_providers.dart';
-import 'package:FlexScan/router/app_router.dart';
+import 'package:flex_scan/features/utils/cache_clearer.dart';
+import 'package:flex_scan/features/utils/open_links.dart';
+import 'package:flex_scan/links/app_links.dart';
+import 'package:flex_scan/main.dart';
+import 'package:flex_scan/providers/auth_providers.dart';
+import 'package:flex_scan/router/app_router.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -264,6 +262,7 @@ Describe your issue or feedback below:
                     try {
                       await sendFeedback();
                     } catch (e) {
+                      if (!context.mounted) return;
                       ScaffoldMessenger.of(context)
                           .showSnackBar(SnackBar(content: Text(e.toString())));
                     }
@@ -389,6 +388,7 @@ Describe your issue or feedback below:
           FilledButton(
             onPressed: () async {
               await clearAppCache();
+              if (!context.mounted) return;
               ctx.pop();
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Cache cleared')),
@@ -419,12 +419,13 @@ Describe your issue or feedback below:
               try {
                 await ref.read(documentsProvider.notifier).clearAll();
               } catch (e) {
+                if (!context.mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Error clearing storage: $e')),
                 );
                 return;
               }
-
+              if (!context.mounted) return;
               ctx.pop();
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Storage cleared')),
@@ -438,89 +439,89 @@ Describe your issue or feedback below:
   }
 }
 
-class _ProfileCard extends StatelessWidget {
-  final int documentCount;
+// class _ProfileCard extends StatelessWidget {
+//   final int documentCount;
 
-  const _ProfileCard({required this.documentCount});
+//   const _ProfileCard({required this.documentCount});
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+//   @override
+//   Widget build(BuildContext context) {
+//     final theme = Theme.of(context);
+//     final isDark = theme.brightness == Brightness.dark;
 
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: isDark
-              ? [const Color(0xFF1E1B4B), const Color(0xFF312E81)]
-              : [AppColors.primaryContainer, const Color(0xFFE0E7FF)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: AppRadius.borderXl,
-        border: Border.all(
-          color: AppColors.primary.withValues(alpha: 30),
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.person_rounded,
-              color: Colors.white,
-              size: 28,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Ali Hassan',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    color: isDark ? Colors.white : AppColors.primaryDark,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '$documentCount documents processed',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: isDark
-                        ? Colors.white60
-                        : AppColors.primary.withValues(alpha: 70),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: AppRadius.borderFull,
-            ),
-            child: const Text(
-              'Pro',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+//     return Container(
+//       padding: const EdgeInsets.all(20),
+//       decoration: BoxDecoration(
+//         gradient: LinearGradient(
+//           colors: isDark
+//               ? [const Color(0xFF1E1B4B), const Color(0xFF312E81)]
+//               : [AppColors.primaryContainer, const Color(0xFFE0E7FF)],
+//           begin: Alignment.topLeft,
+//           end: Alignment.bottomRight,
+//         ),
+//         borderRadius: AppRadius.borderXl,
+//         border: Border.all(
+//           color: AppColors.primary.withValues(alpha: 30),
+//         ),
+//       ),
+//       child: Row(
+//         children: [
+//           Container(
+//             width: 56,
+//             height: 56,
+//             decoration: const BoxDecoration(
+//               color: AppColors.primary,
+//               shape: BoxShape.circle,
+//             ),
+//             child: const Icon(
+//               Icons.person_rounded,
+//               color: Colors.white,
+//               size: 28,
+//             ),
+//           ),
+//           const SizedBox(width: 16),
+//           Expanded(
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 Text(
+//                   'Ali Hassan',
+//                   style: theme.textTheme.titleMedium?.copyWith(
+//                     color: isDark ? Colors.white : AppColors.primaryDark,
+//                   ),
+//                 ),
+//                 const SizedBox(height: 2),
+//                 Text(
+//                   '$documentCount documents processed',
+//                   style: theme.textTheme.bodySmall?.copyWith(
+//                     color: isDark
+//                         ? Colors.white60
+//                         : AppColors.primary.withValues(alpha: 70),
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//           Container(
+//             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+//             decoration: const BoxDecoration(
+//               color: AppColors.primary,
+//               borderRadius: AppRadius.borderFull,
+//             ),
+//             child: const Text(
+//               'Pro',
+//               style: TextStyle(
+//                 color: Colors.white,
+//                 fontSize: 12,
+//                 fontWeight: FontWeight.w700,
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
 
 class _ThemeSegmentedControl extends StatelessWidget {
   final ThemeMode current;
@@ -607,123 +608,123 @@ class _ThemeSegment extends StatelessWidget {
   }
 }
 
-class _LanguageSheet extends StatelessWidget {
-  const _LanguageSheet();
+// class _LanguageSheet extends StatelessWidget {
+//   const _LanguageSheet();
 
-  static const _languages = [
-    ('English (US)', '🇺🇸', true),
-    ('Urdu (اردو)', '🇵🇰', false),
-    ('Arabic (العربية)', '🇸🇦', false),
-    ('French (Français)', '🇫🇷', false),
-    ('German (Deutsch)', '🇩🇪', false),
-    ('Spanish (Español)', '🇪🇸', false),
-  ];
+//   static const _languages = [
+//     ('English (US)', '🇺🇸', true),
+//     ('Urdu (اردو)', '🇵🇰', false),
+//     ('Arabic (العربية)', '🇸🇦', false),
+//     ('French (Français)', '🇫🇷', false),
+//     ('German (Deutsch)', '🇩🇪', false),
+//     ('Spanish (Español)', '🇪🇸', false),
+//   ];
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+//   @override
+//   Widget build(BuildContext context) {
+//     final theme = Theme.of(context);
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        24,
-        20,
-        24,
-        MediaQuery.paddingOf(context).bottom + 24,
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: theme.dividerColor,
-                  borderRadius: AppRadius.borderFull,
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text('App Language', style: theme.textTheme.titleMedium),
-            const SizedBox(height: 16),
-            ..._languages.map((lang) => ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: Text(lang.$2, style: const TextStyle(fontSize: 24)),
-                  title: Text(lang.$1),
-                  trailing: lang.$3
-                      ? const Icon(Icons.check_rounded,
-                          color: AppColors.primary)
-                      : null,
-                  onTap: () => Navigator.pop(context),
-                )),
-          ],
-        ),
-      ),
-    );
-  }
-}
+//     return Padding(
+//       padding: EdgeInsets.fromLTRB(
+//         24,
+//         20,
+//         24,
+//         MediaQuery.paddingOf(context).bottom + 24,
+//       ),
+//       child: SingleChildScrollView(
+//         child: Column(
+//           mainAxisSize: MainAxisSize.min,
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             Center(
+//               child: Container(
+//                 width: 36,
+//                 height: 4,
+//                 decoration: BoxDecoration(
+//                   color: theme.dividerColor,
+//                   borderRadius: AppRadius.borderFull,
+//                 ),
+//               ),
+//             ),
+//             const SizedBox(height: 20),
+//             Text('App Language', style: theme.textTheme.titleMedium),
+//             const SizedBox(height: 16),
+//             ..._languages.map((lang) => ListTile(
+//                   contentPadding: EdgeInsets.zero,
+//                   leading: Text(lang.$2, style: const TextStyle(fontSize: 24)),
+//                   title: Text(lang.$1),
+//                   trailing: lang.$3
+//                       ? const Icon(Icons.check_rounded,
+//                           color: AppColors.primary)
+//                       : null,
+//                   onTap: () => Navigator.pop(context),
+//                 )),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
 
-class _OcrLanguageSheet extends StatelessWidget {
-  const _OcrLanguageSheet();
+// class _OcrLanguageSheet extends StatelessWidget {
+//   const _OcrLanguageSheet();
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+//   @override
+//   Widget build(BuildContext context) {
+//     final theme = Theme.of(context);
 
-    final langs = [
-      ('English', '🇺🇸', true),
-      ('Urdu (اردو)', '🇵🇰', true),
-      ('Arabic (العربية)', '🇸🇦', false),
-      ('French', '🇫🇷', false),
-      ('Chinese', '🇨🇳', false),
-    ];
+//     final langs = [
+//       ('English', '🇺🇸', true),
+//       ('Urdu (اردو)', '🇵🇰', true),
+//       ('Arabic (العربية)', '🇸🇦', false),
+//       ('French', '🇫🇷', false),
+//       ('Chinese', '🇨🇳', false),
+//     ];
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        24,
-        20,
-        24,
-        MediaQuery.paddingOf(context).bottom + 24,
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: theme.dividerColor,
-                  borderRadius: AppRadius.borderFull,
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text('OCR Languages', style: theme.textTheme.titleMedium),
-            Text(
-              'Select languages for text recognition',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 16),
-            ...langs.map((lang) => ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: Text(lang.$2, style: const TextStyle(fontSize: 22)),
-                  title: Text(lang.$1),
-                  trailing: Switch(
-                    value: lang.$3,
-                    onChanged: (_) {},
-                    activeThumbColor: AppColors.primary,
-                  ),
-                )),
-          ],
-        ),
-      ),
-    );
-  }
-}
+//     return Padding(
+//       padding: EdgeInsets.fromLTRB(
+//         24,
+//         20,
+//         24,
+//         MediaQuery.paddingOf(context).bottom + 24,
+//       ),
+//       child: SingleChildScrollView(
+//         child: Column(
+//           mainAxisSize: MainAxisSize.min,
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             Center(
+//               child: Container(
+//                 width: 36,
+//                 height: 4,
+//                 decoration: BoxDecoration(
+//                   color: theme.dividerColor,
+//                   borderRadius: AppRadius.borderFull,
+//                 ),
+//               ),
+//             ),
+//             const SizedBox(height: 20),
+//             Text('OCR Languages', style: theme.textTheme.titleMedium),
+//             Text(
+//               'Select languages for text recognition',
+//               style: theme.textTheme.bodySmall?.copyWith(
+//                 color: theme.colorScheme.onSurfaceVariant,
+//               ),
+//             ),
+//             const SizedBox(height: 16),
+//             ...langs.map((lang) => ListTile(
+//                   contentPadding: EdgeInsets.zero,
+//                   leading: Text(lang.$2, style: const TextStyle(fontSize: 22)),
+//                   title: Text(lang.$1),
+//                   trailing: Switch(
+//                     value: lang.$3,
+//                     onChanged: (_) {},
+//                     activeThumbColor: AppColors.primary,
+//                   ),
+//                 )),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }

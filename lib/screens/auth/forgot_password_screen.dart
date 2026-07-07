@@ -190,7 +190,7 @@ class _EmailStep extends StatelessWidget {
         Container(
           width: 72,
           height: 72,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: AppColors.primaryContainer,
             borderRadius: AppRadius.borderXl,
           ),
@@ -270,7 +270,7 @@ class _EmailStep extends StatelessWidget {
         const SizedBox(height: 20),
         Container(
           padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: AppColors.primaryContainer,
             borderRadius: AppRadius.borderMd,
           ),

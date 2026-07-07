@@ -1,5 +1,5 @@
-import 'package:FlexScan/firebase_options.dart';
-import 'package:FlexScan/screens/auth/forgot_password_screen.dart';
+import 'package:flex_scan/firebase_options.dart';
+import 'package:flex_scan/screens/auth/forgot_password_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
