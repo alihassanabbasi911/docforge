@@ -50,9 +50,9 @@ Describe your issue or feedback below:
     final documentCount = ref.watch(documentsProvider).length;
 
     ref.listen(authProvider, (prev, next) {
-      next.whenOrNull(data: (data) {
+      next.when(data: (data) {
         context.pop();
-        context.go(AppRoutes.authStateChanges);
+        context.go(AppRoutes.login);
       }, error: (e, stackTrace) {
         context.pop();
         ScaffoldMessenger.of(context).showSnackBar(
