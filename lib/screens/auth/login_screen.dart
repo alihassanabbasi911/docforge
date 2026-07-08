@@ -158,7 +158,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         // ── Form ────────────────────────────────────
                         Form(
                           key: _formKey,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          autovalidateMode: AutovalidateMode.onUnfocus,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
